@@ -65,9 +65,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "casper-contract"
-version = "3.0.0"
+version = "1.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4243fe64dad13cfbc610a11b72587f5cebcc7578db057be19a8a67d75d64f947"
+checksum = "790b76807d64788758208757b0a17970bf756cb7c392f55b1a22021a34f95991"
 dependencies = [
  "casper-types",
  "hex_fmt",
@@ -76,9 +76,9 @@ dependencies = [
 
 [[package]]
 name = "casper-types"
-version = "3.0.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d65faf6ea346ce733206a51822cb4da2a76cee29308b0ee4c1f3cba756bdee5"
+checksum = "a13e82a13d1784104fd021a38da56c69da94e84b26b03c2cf3d8da3895a16c8c"
 dependencies = [
  "base16",
  "base64",
@@ -302,7 +302,6 @@ dependencies = [
  "cfg-if 1.0.4",
  "ecdsa",
  "elliptic-curve",
- "sha2",
 ]
 
 [[package]]

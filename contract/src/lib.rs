@@ -6,7 +6,6 @@ extern crate alloc;
 use alloc::{
     string::{String, ToString},
     vec,
-    vec::Vec,
 };
 
 use casper_contract::{
@@ -16,29 +15,17 @@ use casper_contract::{
 
 use casper_types::{
     contracts::NamedKeys, CLType, CLValue, EntryPoint, EntryPointAccess, EntryPointType,
-    EntryPoints, Key, Parameter, URef,
+    EntryPoints, Parameter, URef,
 };
 
 // Contract constants
 const CONTRACT_KEY: &str = "casperclicker_contract";
 const LEADERBOARD_KEY: &str = "leaderboard";
-const CONTRACT_VERSION: &str = "contract_version";
 
 // Entry point names
 const ENTRY_SUBMIT_SCORE: &str = "submit_score";
 const ENTRY_GET_LEADERBOARD: &str = "get_leaderboard";
 const ENTRY_GET_PLAYER_SCORE: &str = "get_player_score";
-
-/// Player score structure stored as serialized data
-#[derive(Clone)]
-struct PlayerScore {
-    player_name: String,
-    wallet_address: String,
-    total_earned: u64,
-    total_clicks: u64,
-    play_time: u64,
-    timestamp: u64,
-}
 
 /// Submit a player's score to the leaderboard
 #[no_mangle]
@@ -85,7 +72,7 @@ pub extern "C" fn submit_score() {
 /// Get the entire leaderboard (returns top 100 players)
 #[no_mangle]
 pub extern "C" fn get_leaderboard() {
-    let leaderboard_uref: URef = runtime::get_key(LEADERBOARD_KEY)
+    let _leaderboard_uref: URef = runtime::get_key(LEADERBOARD_KEY)
         .unwrap_or_revert()
         .into_uref()
         .unwrap_or_revert();
@@ -163,14 +150,13 @@ pub extern "C" fn call() {
     named_keys.insert(LEADERBOARD_KEY.to_string(), leaderboard_dict_uref.into());
 
     // Install contract
-    let (contract_hash, contract_version) = storage::new_contract(
+    let (contract_hash, _contract_version) = storage::new_contract(
         entry_points,
         Some(named_keys),
         Some(CONTRACT_KEY.to_string()),
-        Some(CONTRACT_VERSION.to_string()),
+        Some("contract_access".to_string()),
     );
 
     // Store contract hash for future access
     runtime::put_key(CONTRACT_KEY, contract_hash.into());
-    runtime::put_key(CONTRACT_VERSION, storage::new_uref(contract_version).into());
 }
