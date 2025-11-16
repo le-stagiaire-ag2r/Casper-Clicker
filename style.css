@@ -487,6 +487,8 @@ header {
     text-align: center;
     max-width: 500px;
     animation: slideIn 0.3s ease;
+    position: relative;
+    z-index: 1001;
 }
 
 @keyframes slideIn {
@@ -521,11 +523,18 @@ header {
     cursor: pointer;
     margin-top: 20px;
     transition: var(--transition-fast);
+    pointer-events: auto;
+    position: relative;
+    z-index: 1002;
 }
 
 .btn-primary:hover {
     background: #dd0010;
     transform: scale(1.05);
+}
+
+.btn-primary:active {
+    transform: scale(0.95);
 }
 
 /* ========== FOOTER ========== */

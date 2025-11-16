@@ -500,11 +500,38 @@ function showAchievementPopup(achievement) {
  */
 function closeAchievementModal() {
     const modal = document.getElementById('achievementModal');
-    modal.classList.add('hidden');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
 // Make it globally accessible for onclick
 window.closeAchievementModal = closeAchievementModal;
+
+/**
+ * Setup modal event listeners
+ */
+function setupModalListeners() {
+    const modal = document.getElementById('achievementModal');
+
+    if (modal) {
+        // Close on background click
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeAchievementModal();
+            }
+        });
+
+        // Close on Escape or Enter key
+        document.addEventListener('keydown', function(event) {
+            if (!modal.classList.contains('hidden')) {
+                if (event.key === 'Escape' || event.key === 'Enter') {
+                    closeAchievementModal();
+                }
+            }
+        });
+    }
+}
 
 // ============================================
 // UI UPDATES
@@ -775,6 +802,7 @@ function initGame() {
     // Setup event listeners
     document.getElementById('mainButton').addEventListener('click', handleClick);
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
+    setupModalListeners();
 
     // Restore wallet UI if connected
     if (GameState.walletConnected && GameState.walletAddress) {
