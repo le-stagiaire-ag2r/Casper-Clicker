@@ -20,7 +20,7 @@ build-contract:
 # Clean build artifacts
 clean:
 	cd contract && cargo clean
-	rm -rf node_modules
+	rm -rf scripts/node_modules
 
 # Deploy to Casper Testnet (requires casper-client CLI)
 deploy-testnet:
@@ -39,7 +39,7 @@ deploy-testnet:
 
 # Install frontend dependencies
 install-frontend:
-	npm install
+	cd scripts && npm install
 
 # Run local development server
 dev:

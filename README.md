@@ -200,10 +200,11 @@ Deployment:
 
 ```
 Casper-Clicker/
-├── index.html                    # Main game interface (5.7KB)
-├── style.css                     # Styling & animations (15KB)
-├── game.js                       # Core game logic (34KB, 1000+ LOC)
-├── blockchain.js                 # Blockchain integration (7.7KB)
+├── index.html                    # Main game page
+├── assets/                       # Game assets
+│   ├── game.js                  # Core game logic (34KB, 1000+ LOC)
+│   ├── blockchain.js            # Blockchain integration (7.7KB)
+│   └── style.css                # Styling & animations (15KB)
 ├── contract/                     # Smart contract (Rust)
 │   ├── src/main.rs              # Contract logic (170 lines)
 │   ├── Cargo.toml               # Rust dependencies
@@ -213,10 +214,12 @@ Casper-Clicker/
 │   ├── DEPLOYMENT_INSTRUCTIONS.md
 │   ├── HACKATHON_SUBMISSION.md
 │   └── DORAHACKS_SUBMISSION.txt
+├── scripts/                      # Build scripts
+│   └── package.json             # npm dependencies
 ├── Makefile                      # Build automation
-├── package.json                  # npm dependencies
 ├── README.md                     # This file
-└── LICENSE                       # MIT License
+├── LICENSE                       # MIT License
+└── .nojekyll                     # GitHub Pages config
 ```
 
 ### 🔄 Game Loop Architecture
