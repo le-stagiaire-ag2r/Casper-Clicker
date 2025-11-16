@@ -60,13 +60,19 @@
                         <p>Total Earned: <span id="totalEarned">0</span></p>
                         <p>Play Time: <span id="playTime">0s</span></p>
                     </div>
+                    <button id="submitScoreBtn" class="btn-submit-score hidden">
+                        📤 Submit to Blockchain
+                    </button>
                 </div>
 
                 <div class="stat-card">
-                    <h3>🏆 Leaderboard</h3>
+                    <h3>🏆 Global Leaderboard</h3>
                     <div id="leaderboard" class="leaderboard">
-                        <p class="loading">Connect wallet to view</p>
+                        <p class="loading">Loading...</p>
                     </div>
+                    <button id="refreshLeaderboard" class="btn-refresh">
+                        🔄 Refresh
+                    </button>
                 </div>
             </aside>
 
@@ -132,6 +138,7 @@
 
     <!-- Achievement notifications will be added dynamically here -->
 
+    <script src="blockchain.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
