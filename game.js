@@ -807,7 +807,7 @@ async function connectWallet() {
             console.log('✅ Wallet connected successfully!');
         } else {
             // Fallback if wallet not available
-            alert('CSPR.click wallet not detected.\n\nPlease install from https://cspr.click\n\nYou can still play locally, but scores won\'t be saved to blockchain.');
+            alert('❌ No Casper wallet detected!\n\nPlease install one of these extensions:\n\n1️⃣ Casper Wallet (Recommended)\n   → Chrome Web Store: Search "Casper Wallet"\n\n2️⃣ Casper Signer\n   → Chrome Web Store: Search "Casper Signer"\n\n✅ You can still play locally!\nScores won\'t be saved to blockchain until you connect a wallet.');
             GameState.walletConnected = false;
             GameState.walletAddress = null;
 
