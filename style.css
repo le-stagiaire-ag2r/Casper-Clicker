@@ -1,0 +1,628 @@
+/* ============================================
+   CASPERCLICKER - IDLE STAKING GAME STYLES
+   Built for Casper Hackathon 2026
+   ============================================ */
+
+/* ========== CSS VARIABLES ========== */
+:root {
+    --casper-red: #FF0011;
+    --casper-dark: #1a1a1a;
+    --casper-darker: #0d0d0d;
+    --casper-light: #f5f5f5;
+    --casper-gray: #333;
+    --casper-border: #444;
+
+    --success-green: #00ff88;
+    --warning-yellow: #ffaa00;
+    --info-blue: #00aaff;
+
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.5);
+
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+/* ========== RESET & BASE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--casper-darker) 0%, var(--casper-dark) 100%);
+    color: var(--casper-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ========== CONTAINER ========== */
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ========== HEADER ========== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: var(--casper-gray);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--casper-red);
+}
+
+.logo h1 {
+    font-size: 2.5em;
+    color: var(--casper-red);
+    text-shadow: 0 0 10px rgba(255, 0, 17, 0.5);
+    margin-bottom: 5px;
+}
+
+.tagline {
+    color: var(--success-green);
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.btn-wallet {
+    background: var(--casper-red);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-wallet:hover {
+    background: #dd0010;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.wallet-info {
+    padding: 12px 24px;
+    background: var(--casper-darker);
+    border-radius: 8px;
+    border: 2px solid var(--success-green);
+    font-family: monospace;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ========== MAIN GAME AREA ========== */
+.game-area {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* ========== PANELS COMMON STYLES ========== */
+.stats-panel, .upgrades-panel {
+    background: var(--casper-gray);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--casper-border);
+}
+
+.stat-card {
+    background: var(--casper-darker);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--casper-border);
+    transition: var(--transition-fast);
+}
+
+.stat-card:hover {
+    border-color: var(--casper-red);
+    box-shadow: 0 0 10px rgba(255, 0, 17, 0.3);
+}
+
+.stat-card h3 {
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: var(--casper-red);
+}
+
+/* ========== BALANCE DISPLAYS ========== */
+.balance-display, .rate-display, .click-display {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--success-green);
+    text-align: center;
+}
+
+.currency {
+    font-size: 0.7em;
+    color: var(--casper-light);
+    margin-left: 5px;
+}
+
+/* ========== STATS LIST ========== */
+.stats-list p {
+    margin: 8px 0;
+    font-size: 0.9em;
+    color: var(--casper-light);
+}
+
+.stats-list span {
+    color: var(--warning-yellow);
+    font-weight: bold;
+}
+
+/* ========== LEADERBOARD ========== */
+.leaderboard {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    margin: 5px 0;
+    background: var(--casper-gray);
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.leaderboard-rank {
+    color: var(--warning-yellow);
+    font-weight: bold;
+}
+
+.loading {
+    text-align: center;
+    color: var(--casper-border);
+    font-style: italic;
+}
+
+/* ========== CLICK SECTION ========== */
+.click-section {
+    background: var(--casper-gray);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid var(--casper-red);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.click-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.main-button {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--casper-red), #aa0010);
+    border: 6px solid var(--success-green);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: 0 10px 30px rgba(255, 0, 17, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.main-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 0, 17, 0.7);
+}
+
+.main-button:active {
+    transform: scale(0.95);
+}
+
+.button-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.coin-icon {
+    font-size: 5em;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.button-text {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin-top: 10px;
+}
+
+/* ========== CLICK EFFECTS ========== */
+.click-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.click-effect {
+    position: absolute;
+    color: var(--success-green);
+    font-size: 2em;
+    font-weight: bold;
+    animation: floatUp 1s ease-out forwards;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(0.5);
+    }
+}
+
+/* ========== PROGRESS SECTION ========== */
+.progress-section {
+    margin-top: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.progress-section h4 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--casper-red);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background: var(--casper-darker);
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid var(--casper-border);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--casper-red), var(--success-green));
+    border-radius: 15px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+#progressText {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: var(--casper-light);
+}
+
+/* ========== UPGRADES PANEL ========== */
+.panel-header {
+    background: var(--casper-red);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.panel-header h3 {
+    color: white;
+    font-size: 1.2em;
+}
+
+.upgrades-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.upgrade-item {
+    background: var(--casper-darker);
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 2px solid var(--casper-border);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.upgrade-item:hover:not(.disabled) {
+    border-color: var(--casper-red);
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+}
+
+.upgrade-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.upgrade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.upgrade-icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+}
+
+.upgrade-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--success-green);
+}
+
+.upgrade-count {
+    color: var(--warning-yellow);
+    font-size: 0.9em;
+    margin-left: 8px;
+}
+
+.upgrade-description {
+    font-size: 0.85em;
+    color: var(--casper-light);
+    margin-bottom: 8px;
+}
+
+.upgrade-cost {
+    color: var(--casper-red);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* ========== ACHIEVEMENTS ========== */
+.achievements-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.achievement-item {
+    background: var(--casper-darker);
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 2px solid var(--casper-border);
+    transition: var(--transition-fast);
+}
+
+.achievement-item.unlocked {
+    border-color: var(--success-green);
+    background: linear-gradient(135deg, var(--casper-darker) 0%, rgba(0, 255, 136, 0.1) 100%);
+}
+
+.achievement-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.achievement-icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+}
+
+.achievement-name {
+    font-weight: bold;
+    color: var(--success-green);
+}
+
+.achievement-locked {
+    opacity: 0.4;
+}
+
+.achievement-locked .achievement-name {
+    color: var(--casper-light);
+}
+
+.achievement-description {
+    font-size: 0.8em;
+    color: var(--casper-light);
+    margin-top: 5px;
+}
+
+/* ========== MODAL ========== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: var(--casper-gray);
+    padding: 40px;
+    border-radius: 16px;
+    border: 3px solid var(--casper-red);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    max-width: 500px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: scale(0.8) translateY(-50px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.achievement-popup h2 {
+    color: var(--success-green);
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.achievement-popup .achievement-icon {
+    font-size: 5em;
+    margin: 20px 0;
+}
+
+.achievement-popup h3 {
+    color: var(--casper-red);
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background: var(--casper-red);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: var(--transition-fast);
+}
+
+.btn-primary:hover {
+    background: #dd0010;
+    transform: scale(1.05);
+}
+
+/* ========== FOOTER ========== */
+footer {
+    background: var(--casper-gray);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid var(--casper-border);
+    box-shadow: var(--shadow-md);
+}
+
+.footer-content p {
+    margin: 8px 0;
+    color: var(--casper-light);
+}
+
+.links {
+    margin: 15px 0;
+}
+
+.links a {
+    color: var(--casper-red);
+    text-decoration: none;
+    margin: 0 10px;
+    transition: var(--transition-fast);
+}
+
+.links a:hover {
+    color: var(--success-green);
+    text-decoration: underline;
+}
+
+.links span {
+    color: var(--casper-border);
+}
+
+.version {
+    font-size: 0.85em;
+    color: var(--casper-border);
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--casper-darker);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--casper-red);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #dd0010;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1200px) {
+    .game-area {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-panel, .upgrades-panel {
+        max-width: 100%;
+    }
+
+    .main-button {
+        width: 250px;
+        height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .logo h1 {
+        font-size: 1.8em;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .main-button {
+        width: 200px;
+        height: 200px;
+    }
+
+    .coin-icon {
+        font-size: 3em;
+    }
+
+    .button-text {
+        font-size: 1em;
+    }
+}

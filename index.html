@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CasperClicker - Idle Staking Game</title>
+    <meta name="description" content="Addictive idle clicker game on Casper Network. Click to stake CSPR and earn stCSPR tokens!">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <h1>🎮 CASPER CLICKER</h1>
+                <p class="tagline">Idle Staking Game on Casper Network</p>
+            </div>
+            <div class="wallet-section">
+                <button id="connectWallet" class="btn-wallet">
+                    🔗 Connect Wallet
+                </button>
+                <div id="walletInfo" class="wallet-info hidden">
+                    <span id="walletAddress"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-area">
+            <!-- Left Panel: Stats -->
+            <aside class="stats-panel">
+                <div class="stat-card">
+                    <h3>💰 Your Balance</h3>
+                    <div class="balance-display">
+                        <span class="balance-amount" id="balance">0</span>
+                        <span class="currency">stCSPR</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>⚡ Per Second</h3>
+                    <div class="rate-display">
+                        <span class="rate-amount" id="perSecond">0</span>
+                        <span class="currency">stCSPR/s</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>👆 Per Click</h3>
+                    <div class="click-display">
+                        <span class="click-amount" id="perClick">1</span>
+                        <span class="currency">stCSPR</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>📊 Total Stats</h3>
+                    <div class="stats-list">
+                        <p>Total Clicks: <span id="totalClicks">0</span></p>
+                        <p>Total Earned: <span id="totalEarned">0</span></p>
+                        <p>Play Time: <span id="playTime">0s</span></p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>🏆 Leaderboard</h3>
+                    <div id="leaderboard" class="leaderboard">
+                        <p class="loading">Connect wallet to view</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center: Clicking Area -->
+            <section class="click-section">
+                <div class="click-container">
+                    <button id="mainButton" class="main-button">
+                        <div class="button-content">
+                            <div class="coin-icon">🪙</div>
+                            <div class="button-text">CLICK TO STAKE!</div>
+                        </div>
+                    </button>
+
+                    <!-- Click effects will appear here -->
+                    <div id="clickEffects" class="click-effects"></div>
+                </div>
+
+                <!-- Progress to next achievement -->
+                <div class="progress-section">
+                    <h4>Next Milestone</h4>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <p id="progressText">0 / 100 stCSPR</p>
+                </div>
+            </section>
+
+            <!-- Right Panel: Upgrades -->
+            <aside class="upgrades-panel">
+                <div class="panel-header">
+                    <h3>🛒 UPGRADES</h3>
+                </div>
+
+                <div class="upgrades-container" id="upgradesContainer">
+                    <!-- Upgrades will be dynamically inserted here -->
+                </div>
+
+                <div class="panel-header">
+                    <h3>🎖️ ACHIEVEMENTS</h3>
+                </div>
+
+                <div class="achievements-container" id="achievementsContainer">
+                    <!-- Achievements will be dynamically inserted here -->
+                </div>
+            </aside>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <p>Built for <strong>Casper Hackathon 2026</strong></p>
+                <div class="links">
+                    <a href="https://github.com/le-stagiaire-ag2r/Casper-Clicker" target="_blank">GitHub</a>
+                    <span>|</span>
+                    <a href="https://github.com/le-stagiaire-ag2r/Casper-projet" target="_blank">StakeVue</a>
+                    <span>|</span>
+                    <a href="https://github.com/le-stagiaire-ag2r/CasperSecure" target="_blank">CasperSecure</a>
+                </div>
+                <p class="version">v1.0.0 - Powered by Casper Network</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="achievementModal" class="modal hidden">
+        <div class="modal-content achievement-popup">
+            <h2>🎉 Achievement Unlocked!</h2>
+            <div class="achievement-icon" id="achievementIcon"></div>
+            <h3 id="achievementName"></h3>
+            <p id="achievementDesc"></p>
+            <button class="btn-primary" onclick="closeAchievementModal()">Awesome!</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
