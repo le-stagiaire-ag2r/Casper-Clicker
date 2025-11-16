@@ -4,20 +4,14 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-casper-contract = "4.0.0"
-casper-types = "4.0.1"
+casper-contract = "3.0.0"
+casper-types = "3.0.0"
 
 [profile.release]
 codegen-units = 1
 opt-level = "z"
 lto = true
 
-[[bin]]
-name = "casperclicker"
-path = "src/main.rs"
-bench = false
-doctest = false
-test = false
-
 [lib]
 crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
