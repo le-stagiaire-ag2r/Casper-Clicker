@@ -779,72 +779,117 @@ function renderAchievements() {
  */
 async function connectWallet() {
     try {
-        // Check if CSPR.click is available
-        if (typeof window.csprclick !== 'undefined') {
-            // Request account access
-            const accounts = await window.csprclick.requestConnection();
+        // Use blockchain.js integration
+        const result = await connectCasperWallet();
 
-            if (accounts && accounts.length > 0) {
-                GameState.walletConnected = true;
-                GameState.walletAddress = accounts[0];
-
-                // Update UI
-                document.getElementById('connectWallet').classList.add('hidden');
-                document.getElementById('walletInfo').classList.remove('hidden');
-                document.getElementById('walletAddress').textContent =
-                    GameState.walletAddress.slice(0, 10) + '...' + GameState.walletAddress.slice(-8);
-
-                // Check achievement
-                checkAchievements();
-
-                // Load leaderboard
-                loadLeaderboard();
-
-                // Save game
-                saveGame();
-            }
-        } else {
-            // Simulate connection for demo purposes
-            alert('CSPR.click wallet not detected. This is a demo - wallet features are simulated.');
+        if (result.success) {
             GameState.walletConnected = true;
+            GameState.walletAddress = result.address;
+
+            // Update UI
+            document.getElementById('connectWallet').classList.add('hidden');
+            document.getElementById('walletInfo').classList.remove('hidden');
+            document.getElementById('walletAddress').textContent =
+                result.address.slice(0, 10) + '...' + result.address.slice(-8);
+
+            // Show submit score button
+            document.getElementById('submitScoreBtn').classList.remove('hidden');
+
+            // Check achievement
+            checkAchievements();
+
+            // Load leaderboard from blockchain
+            loadLeaderboard();
+
+            // Save game
+            saveGame();
+
+            console.log('✅ Wallet connected successfully!');
+        } else {
+            // Fallback to demo mode if wallet not available
+            alert('CSPR.click wallet not detected.\n\nPlease install from https://cspr.click\n\nContinuing in demo mode...');
+            GameState.walletConnected = false;
             GameState.walletAddress = 'demo_' + Math.random().toString(36).substring(7);
 
             document.getElementById('connectWallet').classList.add('hidden');
             document.getElementById('walletInfo').classList.remove('hidden');
-            document.getElementById('walletAddress').textContent = 'Demo Wallet';
+            document.getElementById('walletAddress').textContent = 'Demo Mode';
 
-            checkAchievements();
             loadLeaderboard();
             saveGame();
         }
     } catch (error) {
-        console.error('Wallet connection error:', error);
-        alert('Failed to connect wallet. Please try again.');
+        console.error('❌ Wallet connection error:', error);
+        alert('Failed to connect wallet: ' + error.message);
     }
 }
 
 /**
- * Load leaderboard from blockchain (simulated for now)
+ * Load leaderboard from blockchain
  */
-function loadLeaderboard() {
+async function loadLeaderboard() {
     const leaderboard = document.getElementById('leaderboard');
+    leaderboard.innerHTML = '<p class="loading">Loading leaderboard...</p>';
 
-    // Simulated leaderboard data
-    const demoData = [
-        { rank: 1, address: '01abc...def1', score: 10000000 },
-        { rank: 2, address: '02bcd...ef12', score: 5000000 },
-        { rank: 3, address: '03cde...f123', score: 2500000 },
-        { rank: 4, address: '04def...1234', score: 1000000 },
-        { rank: 5, address: '05ef1...2345', score: 500000 }
-    ];
+    try {
+        // Fetch global leaderboard from blockchain
+        const data = await fetchGlobalLeaderboard();
 
-    leaderboard.innerHTML = demoData.map(entry => `
-        <div class="leaderboard-entry">
-            <span class="leaderboard-rank">#${entry.rank}</span>
-            <span>${entry.address}</span>
-            <span>${formatNumber(entry.score)}</span>
-        </div>
-    `).join('');
+        if (data && data.length > 0) {
+            leaderboard.innerHTML = data.map(entry => `
+                <div class="leaderboard-entry">
+                    <span class="leaderboard-rank">#${entry.rank}</span>
+                    <span class="leaderboard-name">${entry.name}</span>
+                    <span class="leaderboard-score">${formatNumber(entry.score)}</span>
+                </div>
+            `).join('');
+        } else {
+            leaderboard.innerHTML = '<p class="loading">No players yet. Be the first!</p>';
+        }
+    } catch (error) {
+        console.error('❌ Failed to load leaderboard:', error);
+        leaderboard.innerHTML = '<p class="loading">Failed to load leaderboard</p>';
+    }
+}
+
+/**
+ * Submit current score to blockchain
+ */
+async function submitScoreManually() {
+    const btn = document.getElementById('submitScoreBtn');
+
+    // Prevent multiple clicks
+    if (btn.classList.contains('syncing')) {
+        return;
+    }
+
+    btn.classList.add('syncing');
+    btn.textContent = '⏳ Submitting...';
+
+    try {
+        const playerData = {
+            playerName: GameState.playerName || 'Anonymous',
+            totalEarned: GameState.totalEarned,
+            totalClicks: GameState.totalClicks,
+            playTime: GameState.playTime
+        };
+
+        const result = await submitScoreToBlockchain(playerData);
+
+        if (result.success) {
+            alert('✅ Score submitted to blockchain!\n\nDeploy Hash: ' + result.deployHash);
+            // Refresh leaderboard after successful submission
+            setTimeout(() => loadLeaderboard(), 3000);
+        } else {
+            alert('❌ Failed to submit score:\n' + result.message);
+        }
+    } catch (error) {
+        console.error('❌ Submit error:', error);
+        alert('❌ Error: ' + error.message);
+    } finally {
+        btn.classList.remove('syncing');
+        btn.textContent = '📤 Submit to Blockchain';
+    }
 }
 
 // ============================================
@@ -947,6 +992,8 @@ function initGame() {
     // Setup event listeners
     document.getElementById('mainButton').addEventListener('click', handleClick);
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
+    document.getElementById('submitScoreBtn').addEventListener('click', submitScoreManually);
+    document.getElementById('refreshLeaderboard').addEventListener('click', loadLeaderboard);
 
     // Restore wallet UI if connected
     if (GameState.walletConnected && GameState.walletAddress) {
@@ -954,6 +1001,7 @@ function initGame() {
         document.getElementById('walletInfo').classList.remove('hidden');
         document.getElementById('walletAddress').textContent =
             GameState.walletAddress.slice(0, 10) + '...' + GameState.walletAddress.slice(-8);
+        document.getElementById('submitScoreBtn').classList.remove('hidden');
         loadLeaderboard();
     }
 
@@ -965,14 +1013,25 @@ function initGame() {
     renderAchievements();
     updateUI();
 
+    // Load leaderboard on startup
+    loadLeaderboard();
+
     // Start game loop (tick every 100ms)
     setInterval(gameTick, 100);
 
     // Save game every 30 seconds
     setInterval(saveGame, 30000);
 
+    // Auto-sync score to blockchain every 5 minutes (if connected)
+    setInterval(() => {
+        if (typeof autoSyncScore === 'function') {
+            autoSyncScore(GameState);
+        }
+    }, 5 * 60 * 1000); // 5 minutes
+
     console.log('🎮 CasperClicker - Ready!');
     console.log('💡 Tip: Type resetGame() in console to reset your progress');
+    console.log('🔗 Tip: Connect your CSPR.click wallet to submit scores to blockchain!');
 }
 
 /**

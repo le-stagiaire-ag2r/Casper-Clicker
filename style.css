@@ -103,6 +103,56 @@ header {
     display: none;
 }
 
+/* ========== BLOCKCHAIN BUTTONS ========== */
+.btn-submit-score {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, var(--casper-red), #dd0010);
+    color: white;
+    border: 2px solid var(--success-green);
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: 0 4px 12px rgba(255, 0, 17, 0.3);
+}
+
+.btn-submit-score:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 0, 17, 0.5);
+}
+
+.btn-submit-score:active {
+    transform: translateY(0);
+}
+
+.btn-submit-score.syncing {
+    background: linear-gradient(135deg, var(--casper-gray), var(--casper-dark));
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.btn-refresh {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--casper-dark);
+    color: var(--casper-light);
+    border: 1px solid var(--casper-gray);
+    border-radius: 6px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-refresh:hover {
+    background: var(--casper-gray);
+    border-color: var(--success-green);
+    color: white;
+}
+
 /* ========== MAIN GAME AREA ========== */
 .game-area {
     display: grid;
