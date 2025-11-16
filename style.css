@@ -91,6 +91,27 @@ header {
     box-shadow: var(--shadow-md);
 }
 
+.btn-reset {
+    background: var(--casper-dark);
+    color: var(--casper-light);
+    border: 2px solid var(--casper-gray);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    margin-left: 10px;
+}
+
+.btn-reset:hover {
+    background: var(--casper-red);
+    color: white;
+    border-color: var(--casper-red);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
 .wallet-info {
     padding: 12px 24px;
     background: var(--casper-darker);

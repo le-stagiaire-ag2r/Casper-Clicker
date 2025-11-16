@@ -806,15 +806,12 @@ async function connectWallet() {
 
             console.log('✅ Wallet connected successfully!');
         } else {
-            // Fallback to demo mode if wallet not available
-            alert('CSPR.click wallet not detected.\n\nPlease install from https://cspr.click\n\nContinuing in demo mode...');
+            // Fallback if wallet not available
+            alert('CSPR.click wallet not detected.\n\nPlease install from https://cspr.click\n\nYou can still play locally, but scores won\'t be saved to blockchain.');
             GameState.walletConnected = false;
-            GameState.walletAddress = 'demo_' + Math.random().toString(36).substring(7);
+            GameState.walletAddress = null;
 
-            document.getElementById('connectWallet').classList.add('hidden');
-            document.getElementById('walletInfo').classList.remove('hidden');
-            document.getElementById('walletAddress').textContent = 'Demo Mode';
-
+            // Keep connect wallet button visible
             loadLeaderboard();
             saveGame();
         }
@@ -962,8 +959,16 @@ function loadGame() {
  * Reset game (for testing)
  */
 function resetGame() {
-    if (confirm('Are you sure you want to reset your progress? This cannot be undone!')) {
+    const confirmed = confirm('⚠️ WARNING ⚠️\n\nAre you sure you want to RESET your entire progress?\n\n❌ You will lose:\n- All your stCSPR balance\n- All upgrades purchased\n- All achievements unlocked\n- Your total stats\n\n⚠️ THIS CANNOT BE UNDONE!\n\nClick OK to reset, or Cancel to keep playing.');
+
+    if (confirmed) {
+        // Clear saved data
         localStorage.removeItem('casperclicker_save');
+
+        // Show confirmation
+        alert('✅ Game reset successfully!\n\nReloading...');
+
+        // Reload page
         location.reload();
     }
 }
@@ -994,6 +999,7 @@ function initGame() {
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
     document.getElementById('submitScoreBtn').addEventListener('click', submitScoreManually);
     document.getElementById('refreshLeaderboard').addEventListener('click', loadLeaderboard);
+    document.getElementById('resetGameBtn').addEventListener('click', resetGame);
 
     // Restore wallet UI if connected
     if (GameState.walletConnected && GameState.walletAddress) {
