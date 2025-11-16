@@ -208,10 +208,14 @@ Casper-Clicker/
 │   ├── src/main.rs              # Contract logic (170 lines)
 │   ├── Cargo.toml               # Rust dependencies
 │   └── rust-toolchain           # Rust version
+├── docs/                         # Documentation
+│   ├── BLOCKCHAIN_DEPLOYMENT.md
+│   ├── DEPLOYMENT_INSTRUCTIONS.md
+│   ├── HACKATHON_SUBMISSION.md
+│   └── DORAHACKS_SUBMISSION.txt
 ├── Makefile                      # Build automation
 ├── package.json                  # npm dependencies
 ├── README.md                     # This file
-├── BLOCKCHAIN_DEPLOYMENT.md      # Deployment guide
 └── LICENSE                       # MIT License
 ```
 
@@ -475,7 +479,7 @@ make build-contract
 
 ### Deploy to Testnet
 
-See **[BLOCKCHAIN_DEPLOYMENT.md](./BLOCKCHAIN_DEPLOYMENT.md)** for complete guide.
+See **[BLOCKCHAIN_DEPLOYMENT.md](./docs/BLOCKCHAIN_DEPLOYMENT.md)** for complete guide.
 
 Quick overview:
 ```bash
@@ -662,7 +666,7 @@ copies of the Software...
 
 - 🎮 **Play**: [le-stagiaire-ag2r.github.io/Casper-Clicker](https://le-stagiaire-ag2r.github.io/Casper-Clicker)
 - 💻 **GitHub**: [@le-stagiaire-ag2r](https://github.com/le-stagiaire-ag2r)
-- 📖 **Documentation**: [BLOCKCHAIN_DEPLOYMENT.md](./BLOCKCHAIN_DEPLOYMENT.md)
+- 📖 **Documentation**: [BLOCKCHAIN_DEPLOYMENT.md](./docs/BLOCKCHAIN_DEPLOYMENT.md)
 
 ### Related Projects
 
