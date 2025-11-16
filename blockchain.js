@@ -35,31 +35,49 @@ const BlockchainState = {
 };
 
 /**
- * Connect to Casper wallet using CSPR.click
+ * Connect to Casper wallet (supports multiple wallet types)
  */
 async function connectCasperWallet() {
     try {
-        // Check if CSPR.click is available
-        if (typeof window.csprclick === 'undefined') {
-            throw new Error('CSPR.click wallet not found. Please install it from https://cspr.click');
+        // Try Casper Wallet first (most popular)
+        if (typeof window.CasperWalletProvider !== 'undefined') {
+            const provider = window.CasperWalletProvider();
+            const isConnected = await provider.requestConnection();
+
+            if (isConnected) {
+                const publicKey = await provider.getActivePublicKey();
+                BlockchainState.connected = true;
+                BlockchainState.walletAddress = publicKey;
+                BlockchainState.publicKey = publicKey;
+
+                console.log('✅ Casper Wallet connected:', publicKey);
+                return {
+                    success: true,
+                    address: publicKey
+                };
+            }
         }
 
-        // Request connection
-        const response = await window.csprclick.requestConnection();
+        // Try Casper Signer as fallback
+        if (typeof window.casperlabsHelper !== 'undefined') {
+            const publicKey = await window.casperlabsHelper.requestConnection();
 
-        if (response.success) {
-            BlockchainState.connected = true;
-            BlockchainState.walletAddress = response.activeKey;
-            BlockchainState.publicKey = response.activeKey;
+            if (publicKey) {
+                BlockchainState.connected = true;
+                BlockchainState.walletAddress = publicKey;
+                BlockchainState.publicKey = publicKey;
 
-            console.log('✅ Wallet connected:', BlockchainState.walletAddress);
-            return {
-                success: true,
-                address: BlockchainState.walletAddress
-            };
-        } else {
-            throw new Error('Wallet connection rejected');
+                console.log('✅ Casper Signer connected:', publicKey);
+                return {
+                    success: true,
+                    address: publicKey
+                };
+            }
         }
+
+        // No wallet found
+        throw new Error('No Casper wallet detected. Please install Casper Wallet or Casper Signer extension.');
+
     } catch (error) {
         console.error('❌ Wallet connection failed:', error);
         return {
