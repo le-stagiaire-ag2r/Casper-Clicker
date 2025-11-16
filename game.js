@@ -22,6 +22,9 @@
 // ============================================
 
 const GameState = {
+    // Player info
+    playerName: '',
+
     // Core stats
     balance: 0,
     totalEarned: 0,
@@ -29,10 +32,14 @@ const GameState = {
     clickPower: 1,
     perSecond: 0,
 
+    // Click tracking for achievements
+    clickTimestamps: [],
+
     // Time tracking
     startTime: Date.now(),
     lastTick: Date.now(),
     playTime: 0,
+    totalSpent: 0,
 
     // Wallet connection
     walletConnected: false,
@@ -153,6 +160,56 @@ const UPGRADES = [
         costMultiplier: 3,
         productionMultiplier: 3,
         type: 'production'
+    },
+    {
+        id: 'validator6',
+        name: 'Quantum Validator',
+        icon: '🌌',
+        description: 'Generates +2,500 stCSPR/sec',
+        baseCost: 500000,
+        costMultiplier: 1.15,
+        production: 2500,
+        type: 'generator'
+    },
+    {
+        id: 'validator7',
+        name: 'Infinity Engine',
+        icon: '♾️',
+        description: 'Generates +10,000 stCSPR/sec',
+        baseCost: 2500000,
+        costMultiplier: 1.15,
+        production: 10000,
+        type: 'generator'
+    },
+    {
+        id: 'multiplier4',
+        name: 'Golden Touch',
+        icon: '✨',
+        description: 'x10 click power',
+        baseCost: 25000,
+        costMultiplier: 5,
+        multiplier: 10,
+        type: 'click'
+    },
+    {
+        id: 'multiplier5',
+        name: 'God Mode',
+        icon: '👑',
+        description: 'x50 click power',
+        baseCost: 250000,
+        costMultiplier: 6,
+        multiplier: 50,
+        type: 'click'
+    },
+    {
+        id: 'hyperproduction',
+        name: 'Hyper Production',
+        icon: '⚛️',
+        description: 'x5 all production',
+        baseCost: 500000,
+        costMultiplier: 4,
+        productionMultiplier: 5,
+        type: 'production'
     }
 ];
 
@@ -249,6 +306,75 @@ const ACHIEVEMENTS = [
         icon: '🔗',
         description: 'Connect your Casper wallet',
         requirement: () => GameState.walletConnected
+    },
+    {
+        id: 'ultimate_clicker',
+        name: 'Ultimate Clicker',
+        icon: '🔥',
+        description: 'Click 10,000 times',
+        requirement: () => GameState.totalClicks >= 10000
+    },
+    {
+        id: 'speed_demon',
+        name: 'Speed Demon',
+        icon: '⚡',
+        description: 'Click 10 times in 1 second',
+        requirement: () => {
+            const now = Date.now();
+            const recentClicks = GameState.clickTimestamps.filter(t => now - t < 1000);
+            return recentClicks.length >= 10;
+        }
+    },
+    {
+        id: 'night_owl',
+        name: 'Night Owl',
+        icon: '🦉',
+        description: 'Play for 1 hour',
+        requirement: () => GameState.playTime >= 3600
+    },
+    {
+        id: 'mega_farm',
+        name: 'Mega Farm',
+        icon: '🌾',
+        description: 'Own 100 validators total',
+        requirement: () => {
+            const totalValidators = Object.entries(GameState.upgrades)
+                .filter(([id]) => UPGRADES.find(u => u.id === id)?.type === 'generator')
+                .reduce((sum, [, count]) => sum + count, 0);
+            return totalValidators >= 100;
+        }
+    },
+    {
+        id: 'production_beast',
+        name: 'Production Beast',
+        icon: '🏭',
+        description: 'Reach 10,000 stCSPR/sec',
+        requirement: () => GameState.perSecond >= 10000
+    },
+    {
+        id: 'big_spender',
+        name: 'Big Spender',
+        icon: '💸',
+        description: 'Spend 1,000,000 stCSPR total',
+        requirement: () => GameState.totalSpent >= 1000000
+    },
+    {
+        id: 'billionaire',
+        name: 'Billionaire',
+        icon: '💎',
+        description: 'Earn 1,000,000,000 stCSPR',
+        requirement: () => GameState.totalEarned >= 1000000000
+    },
+    {
+        id: 'completionist',
+        name: 'Completionist',
+        icon: '🏆',
+        description: 'Unlock all other achievements',
+        requirement: () => {
+            const totalAchievements = ACHIEVEMENTS.filter(a => a.id !== 'completionist').length;
+            const unlockedCount = Object.keys(GameState.achievements).filter(id => id !== 'completionist').length;
+            return unlockedCount >= totalAchievements;
+        }
     }
 ];
 
@@ -345,6 +471,14 @@ function handleClick(event) {
     GameState.totalEarned += earnedAmount;
     GameState.totalClicks++;
 
+    // Track click timestamp for "Speed Demon" achievement
+    const now = Date.now();
+    GameState.clickTimestamps.push(now);
+    // Keep only last 15 timestamps (for 1 second window)
+    if (GameState.clickTimestamps.length > 15) {
+        GameState.clickTimestamps = GameState.clickTimestamps.slice(-15);
+    }
+
     // Create click effect
     createClickEffect(event, earnedAmount);
 
@@ -425,6 +559,7 @@ function buyUpgrade(upgradeId) {
 
     if (GameState.balance >= cost) {
         GameState.balance -= cost;
+        GameState.totalSpent += cost; // Track total spending for achievements
         GameState.upgrades[upgradeId] = (GameState.upgrades[upgradeId] || 0) + 1;
 
         // Recalculate stats
@@ -697,11 +832,14 @@ function loadLeaderboard() {
  */
 function saveGame() {
     const saveData = {
+        playerName: GameState.playerName,
         balance: GameState.balance,
         totalEarned: GameState.totalEarned,
         totalClicks: GameState.totalClicks,
+        totalSpent: GameState.totalSpent,
         clickPower: GameState.clickPower,
         perSecond: GameState.perSecond,
+        clickTimestamps: GameState.clickTimestamps,
         startTime: GameState.startTime,
         playTime: GameState.playTime,
         walletConnected: GameState.walletConnected,
@@ -724,11 +862,14 @@ function loadGame() {
         try {
             const data = JSON.parse(saveData);
 
+            GameState.playerName = data.playerName || '';
             GameState.balance = data.balance || 0;
             GameState.totalEarned = data.totalEarned || 0;
             GameState.totalClicks = data.totalClicks || 0;
+            GameState.totalSpent = data.totalSpent || 0;
             GameState.clickPower = data.clickPower || 1;
             GameState.perSecond = data.perSecond || 0;
+            GameState.clickTimestamps = data.clickTimestamps || [];
             GameState.startTime = data.startTime || Date.now();
             GameState.playTime = data.playTime || 0;
             GameState.walletConnected = data.walletConnected || false;
@@ -774,6 +915,11 @@ function initGame() {
     // Load saved game
     loadGame();
 
+    // Ask for player name if not set
+    if (!GameState.playerName || GameState.playerName === '') {
+        askPlayerName();
+    }
+
     // Setup event listeners
     document.getElementById('mainButton').addEventListener('click', handleClick);
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
@@ -786,6 +932,9 @@ function initGame() {
             GameState.walletAddress.slice(0, 10) + '...' + GameState.walletAddress.slice(-8);
         loadLeaderboard();
     }
+
+    // Display player name
+    updatePlayerNameDisplay();
 
     // Initial UI render
     renderUpgrades();
@@ -800,6 +949,46 @@ function initGame() {
 
     console.log('🎮 CasperClicker - Ready!');
     console.log('💡 Tip: Type resetGame() in console to reset your progress');
+}
+
+/**
+ * Ask player for their name
+ */
+function askPlayerName() {
+    let name = prompt('🎮 Welcome to CasperClicker!\n\nWhat\'s your player name?', '');
+
+    if (!name || name.trim() === '') {
+        name = 'Anonymous Staker';
+    }
+
+    GameState.playerName = name.trim().substring(0, 20); // Max 20 characters
+    saveGame();
+}
+
+/**
+ * Update player name display in UI
+ */
+function updatePlayerNameDisplay() {
+    // Add player name to header if not exists
+    const logo = document.querySelector('.logo');
+    if (logo && !document.getElementById('playerName')) {
+        const playerNameElement = document.createElement('p');
+        playerNameElement.id = 'playerName';
+        playerNameElement.className = 'player-name';
+        playerNameElement.textContent = `Player: ${GameState.playerName}`;
+        playerNameElement.style.color = '#00ff88';
+        playerNameElement.style.fontSize = '0.9em';
+        playerNameElement.style.marginTop = '5px';
+        playerNameElement.style.cursor = 'pointer';
+        playerNameElement.title = 'Click to change your name';
+        playerNameElement.onclick = () => {
+            askPlayerName();
+            updatePlayerNameDisplay();
+        };
+        logo.appendChild(playerNameElement);
+    } else if (document.getElementById('playerName')) {
+        document.getElementById('playerName').textContent = `Player: ${GameState.playerName}`;
+    }
 }
 
 // Start the game when DOM is ready
