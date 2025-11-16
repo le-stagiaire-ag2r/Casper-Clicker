@@ -513,6 +513,15 @@ window.closeAchievementModal = closeAchievementModal;
  */
 function setupModalListeners() {
     const modal = document.getElementById('achievementModal');
+    const closeBtn = document.getElementById('achievementCloseBtn');
+
+    // Button click handler (most important!)
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent event from bubbling to modal
+            closeAchievementModal();
+        });
+    }
 
     if (modal) {
         // Close on background click
