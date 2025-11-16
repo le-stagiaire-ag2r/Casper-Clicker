@@ -997,9 +997,24 @@ function initGame() {
     // Setup event listeners
     document.getElementById('mainButton').addEventListener('click', handleClick);
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
-    document.getElementById('submitScoreBtn').addEventListener('click', submitScoreManually);
-    document.getElementById('refreshLeaderboard').addEventListener('click', loadLeaderboard);
-    document.getElementById('resetGameBtn').addEventListener('click', resetGame);
+
+    const submitBtn = document.getElementById('submitScoreBtn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', submitScoreManually);
+    }
+
+    const refreshBtn = document.getElementById('refreshLeaderboard');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadLeaderboard);
+    }
+
+    const resetBtn = document.getElementById('resetGameBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetGame);
+        console.log('✅ Reset button event listener attached');
+    } else {
+        console.error('❌ Reset button not found in DOM!');
+    }
 
     // Restore wallet UI if connected
     if (GameState.walletConnected && GameState.walletAddress) {
