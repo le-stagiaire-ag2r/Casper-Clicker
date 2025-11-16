@@ -672,14 +672,13 @@ function updateUI() {
  * Update upgrade affordability CSS classes in real-time
  */
 function updateUpgradeAffordability() {
-    const upgradeElements = document.querySelectorAll('.upgrade-item');
-
-    UPGRADES.forEach((upgrade, index) => {
-        const cost = getUpgradeCost(upgrade);
-        const canAfford = GameState.balance >= cost;
-        const element = upgradeElements[index];
+    UPGRADES.forEach(upgrade => {
+        const element = document.querySelector(`.upgrade-item[data-upgrade-id="${upgrade.id}"]`);
 
         if (element) {
+            const cost = getUpgradeCost(upgrade);
+            const canAfford = GameState.balance >= cost;
+
             if (canAfford) {
                 element.classList.remove('disabled');
             } else {
@@ -727,6 +726,7 @@ function renderUpgrades() {
 
         const upgradeElement = document.createElement('div');
         upgradeElement.className = `upgrade-item ${canAfford ? '' : 'disabled'}`;
+        upgradeElement.setAttribute('data-upgrade-id', upgrade.id);
         upgradeElement.onclick = () => buyUpgrade(upgrade.id);
 
         upgradeElement.innerHTML = `
