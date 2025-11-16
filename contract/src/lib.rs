@@ -154,7 +154,7 @@ pub extern "C" fn call() {
         entry_points,
         Some(named_keys),
         Some(CONTRACT_KEY.to_string()),
-        Some("contract_access".to_string()),
+        None,  // No access_uref needed for public contract
     );
 
     // Store contract hash for future access
