@@ -65,150 +65,150 @@ const UPGRADES = [
         id: 'validator1',
         name: 'Basic Validator',
         icon: '🖥️',
-        description: 'Generates +1 stCSPR/sec',
-        baseCost: 15,
+        description: 'Generates +0.1 stCSPR/sec',
+        baseCost: 20,
         costMultiplier: 1.15,
-        production: 1,
+        production: 0.1,
         type: 'generator'
     },
     {
         id: 'validator2',
         name: 'Enhanced Validator',
         icon: '💻',
-        description: 'Generates +5 stCSPR/sec',
-        baseCost: 100,
+        description: 'Generates +0.5 stCSPR/sec',
+        baseCost: 150,
         costMultiplier: 1.15,
-        production: 5,
+        production: 0.5,
         type: 'generator'
     },
     {
         id: 'validator3',
         name: 'Super Validator',
         icon: '🖥️',
-        description: 'Generates +25 stCSPR/sec',
-        baseCost: 1000,
+        description: 'Generates +2 stCSPR/sec',
+        baseCost: 1500,
         costMultiplier: 1.15,
-        production: 25,
+        production: 2,
         type: 'generator'
     },
     {
         id: 'validator4',
         name: 'Mega Validator',
         icon: '🚀',
-        description: 'Generates +100 stCSPR/sec',
-        baseCost: 10000,
+        description: 'Generates +8 stCSPR/sec',
+        baseCost: 15000,
         costMultiplier: 1.15,
-        production: 100,
+        production: 8,
         type: 'generator'
     },
     {
         id: 'validator5',
         name: 'Ultra Validator',
         icon: '⚡',
-        description: 'Generates +500 stCSPR/sec',
-        baseCost: 100000,
+        description: 'Generates +30 stCSPR/sec',
+        baseCost: 150000,
         costMultiplier: 1.15,
-        production: 500,
+        production: 30,
         type: 'generator'
     },
     {
         id: 'multiplier1',
         name: 'Click Booster',
         icon: '👆',
-        description: 'Doubles click power',
-        baseCost: 50,
+        description: '+50% click power',
+        baseCost: 100,
         costMultiplier: 2,
-        multiplier: 2,
+        multiplier: 1.5,
         type: 'click'
     },
     {
         id: 'multiplier2',
         name: 'Super Clicker',
         icon: '💪',
-        description: 'x5 click power',
-        baseCost: 500,
+        description: 'x2 click power',
+        baseCost: 1000,
         costMultiplier: 3,
-        multiplier: 5,
+        multiplier: 2,
         type: 'click'
     },
     {
         id: 'multiplier3',
         name: 'Mega Clicker',
         icon: '💥',
-        description: 'x10 click power',
-        baseCost: 5000,
+        description: 'x3 click power',
+        baseCost: 10000,
         costMultiplier: 4,
-        multiplier: 10,
+        multiplier: 3,
         type: 'click'
     },
     {
         id: 'autostaker',
         name: 'Auto-Staker',
         icon: '🤖',
-        description: 'Doubles all production',
-        baseCost: 10000,
+        description: '+50% all production',
+        baseCost: 20000,
         costMultiplier: 2.5,
-        productionMultiplier: 2,
+        productionMultiplier: 1.5,
         type: 'production'
     },
     {
         id: 'turbomode',
         name: 'Turbo Mode',
         icon: '🔥',
-        description: 'x3 all production',
-        baseCost: 50000,
+        description: 'x2 all production',
+        baseCost: 100000,
         costMultiplier: 3,
-        productionMultiplier: 3,
+        productionMultiplier: 2,
         type: 'production'
     },
     {
         id: 'validator6',
         name: 'Quantum Validator',
         icon: '🌌',
-        description: 'Generates +2,500 stCSPR/sec',
-        baseCost: 500000,
+        description: 'Generates +100 stCSPR/sec',
+        baseCost: 750000,
         costMultiplier: 1.15,
-        production: 2500,
+        production: 100,
         type: 'generator'
     },
     {
         id: 'validator7',
         name: 'Infinity Engine',
         icon: '♾️',
-        description: 'Generates +10,000 stCSPR/sec',
-        baseCost: 2500000,
+        description: 'Generates +500 stCSPR/sec',
+        baseCost: 5000000,
         costMultiplier: 1.15,
-        production: 10000,
+        production: 500,
         type: 'generator'
     },
     {
         id: 'multiplier4',
         name: 'Golden Touch',
         icon: '✨',
-        description: 'x10 click power',
-        baseCost: 25000,
+        description: 'x5 click power',
+        baseCost: 50000,
         costMultiplier: 5,
-        multiplier: 10,
+        multiplier: 5,
         type: 'click'
     },
     {
         id: 'multiplier5',
         name: 'God Mode',
         icon: '👑',
-        description: 'x50 click power',
-        baseCost: 250000,
+        description: 'x10 click power',
+        baseCost: 500000,
         costMultiplier: 6,
-        multiplier: 50,
+        multiplier: 10,
         type: 'click'
     },
     {
         id: 'hyperproduction',
         name: 'Hyper Production',
         icon: '⚛️',
-        description: 'x5 all production',
-        baseCost: 500000,
+        description: 'x2.5 all production',
+        baseCost: 1000000,
         costMultiplier: 4,
-        productionMultiplier: 5,
+        productionMultiplier: 2.5,
         type: 'production'
     }
 ];
@@ -663,6 +663,30 @@ function updateUI() {
 
     // Update progress to next milestone
     updateProgress();
+
+    // Update upgrade affordability in real-time
+    updateUpgradeAffordability();
+}
+
+/**
+ * Update upgrade affordability CSS classes in real-time
+ */
+function updateUpgradeAffordability() {
+    const upgradeElements = document.querySelectorAll('.upgrade-item');
+
+    UPGRADES.forEach((upgrade, index) => {
+        const cost = getUpgradeCost(upgrade);
+        const canAfford = GameState.balance >= cost;
+        const element = upgradeElements[index];
+
+        if (element) {
+            if (canAfford) {
+                element.classList.remove('disabled');
+            } else {
+                element.classList.add('disabled');
+            }
+        }
+    });
 }
 
 /**
