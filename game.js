@@ -475,71 +475,37 @@ function unlockAchievement(achievement) {
 }
 
 /**
- * Show achievement unlocked popup
+ * Show achievement unlocked notification (non-blocking toast)
  */
 function showAchievementPopup(achievement) {
-    const modal = document.getElementById('achievementModal');
-    const icon = document.getElementById('achievementIcon');
-    const name = document.getElementById('achievementName');
-    const desc = document.getElementById('achievementDesc');
+    // Create notification toast element
+    const notification = document.createElement('div');
+    notification.className = 'achievement-notification';
+    notification.innerHTML = `
+        <div class="achievement-notification-content">
+            <div class="achievement-notification-icon">${achievement.icon}</div>
+            <div class="achievement-notification-text">
+                <div class="achievement-notification-title">🎉 Achievement Unlocked!</div>
+                <div class="achievement-notification-name">${achievement.name}</div>
+            </div>
+        </div>
+    `;
 
-    icon.textContent = achievement.icon;
-    name.textContent = achievement.name;
-    desc.textContent = achievement.description;
+    // Add to body
+    document.body.appendChild(notification);
 
-    modal.classList.remove('hidden');
-
-    // Auto-close after 3 seconds
+    // Trigger animation
     setTimeout(() => {
-        closeAchievementModal();
+        notification.classList.add('show');
+    }, 10);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 300); // Wait for fade out animation
     }, 3000);
-}
-
-/**
- * Close achievement modal
- */
-function closeAchievementModal() {
-    const modal = document.getElementById('achievementModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-}
-
-// Make it globally accessible for onclick
-window.closeAchievementModal = closeAchievementModal;
-
-/**
- * Setup modal event listeners
- */
-function setupModalListeners() {
-    const modal = document.getElementById('achievementModal');
-    const closeBtn = document.getElementById('achievementCloseBtn');
-
-    // Button click handler (most important!)
-    if (closeBtn) {
-        closeBtn.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent event from bubbling to modal
-            closeAchievementModal();
-        });
-    }
-
-    if (modal) {
-        // Close on background click
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                closeAchievementModal();
-            }
-        });
-
-        // Close on Escape or Enter key
-        document.addEventListener('keydown', function(event) {
-            if (!modal.classList.contains('hidden')) {
-                if (event.key === 'Escape' || event.key === 'Enter') {
-                    closeAchievementModal();
-                }
-            }
-        });
-    }
 }
 
 // ============================================
@@ -811,7 +777,6 @@ function initGame() {
     // Setup event listeners
     document.getElementById('mainButton').addEventListener('click', handleClick);
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
-    setupModalListeners();
 
     // Restore wallet UI if connected
     if (GameState.walletConnected && GameState.walletAddress) {

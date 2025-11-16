@@ -636,3 +636,65 @@ footer {
         font-size: 1em;
     }
 }
+
+/* ========== ACHIEVEMENT NOTIFICATIONS (NON-BLOCKING) ========== */
+.achievement-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--casper-dark) 0%, var(--casper-gray) 100%);
+    border: 2px solid var(--casper-red);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(255, 0, 17, 0.4);
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateX(450px);
+    transition: all 0.3s ease;
+}
+
+.achievement-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.achievement-notification-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.achievement-notification-icon {
+    font-size: 3em;
+    flex-shrink: 0;
+}
+
+.achievement-notification-text {
+    flex: 1;
+}
+
+.achievement-notification-title {
+    color: var(--success-green);
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.achievement-notification-name {
+    color: var(--casper-light);
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+/* Mobile responsive for notifications */
+@media (max-width: 768px) {
+    .achievement-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}
