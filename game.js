@@ -962,14 +962,30 @@ function resetGame() {
     const confirmed = confirm('⚠️ WARNING ⚠️\n\nAre you sure you want to RESET your entire progress?\n\n❌ You will lose:\n- All your stCSPR balance\n- All upgrades purchased\n- All achievements unlocked\n- Your total stats\n\n⚠️ THIS CANNOT BE UNDONE!\n\nClick OK to reset, or Cancel to keep playing.');
 
     if (confirmed) {
-        // Clear saved data
+        // Clear ALL localStorage data for this game
         localStorage.removeItem('casperclicker_save');
+        localStorage.clear(); // Clear everything to be sure
 
-        // Show confirmation
-        alert('✅ Game reset successfully!\n\nReloading...');
+        // Reset GameState object to initial values
+        GameState.playerName = '';
+        GameState.balance = 0;
+        GameState.totalEarned = 0;
+        GameState.totalClicks = 0;
+        GameState.clickPower = 1;
+        GameState.perSecond = 0;
+        GameState.clickTimestamps = [];
+        GameState.startTime = Date.now();
+        GameState.lastTick = Date.now();
+        GameState.playTime = 0;
+        GameState.totalSpent = 0;
+        GameState.walletConnected = false;
+        GameState.walletAddress = null;
+        GameState.upgrades = {};
+        GameState.achievements = {};
+        GameState.nextMilestone = 100;
 
-        // Reload page
-        location.reload();
+        // Hard reload with cache clearing (forces fresh page load)
+        window.location.href = window.location.href.split('?')[0] + '?reset=' + Date.now();
     }
 }
 
