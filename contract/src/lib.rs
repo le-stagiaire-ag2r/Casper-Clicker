@@ -4,8 +4,8 @@
 extern crate alloc;
 
 use alloc::{
-    collections::BTreeMap,
     string::{String, ToString},
+    vec,
     vec::Vec,
 };
 
