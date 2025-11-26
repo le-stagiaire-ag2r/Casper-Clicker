@@ -67,16 +67,42 @@ fi
 echo -e "${YELLOW}🚀 Deploying contract...${NC}"
 
 # Deploy the contract
-DEPLOY_HASH=$(casper-client put-deploy \
+DEPLOY_OUTPUT=$(casper-client put-deploy \
     --node-address "$NODE_ADDRESS" \
     --chain-name "$CHAIN_NAME" \
     --secret-key "$SECRET_KEY" \
     --payment-amount 200000000000 \
-    --session-path "$WASM_PATH" \
-    | grep -oP '(?<=deploy_hash": ")[^"]+')
+    --session-path "$WASM_PATH" 2>&1)
+
+# Check for 403 Forbidden error
+if echo "$DEPLOY_OUTPUT" | grep -q "403 Forbidden"; then
+    echo -e "${RED}❌ RPC node blocked the deployment (403 Forbidden)${NC}"
+    echo ""
+    echo -e "${YELLOW}⚠️  Les nœuds RPC publics bloquent actuellement les déploiements directs.${NC}"
+    echo ""
+    echo -e "${GREEN}📋 Solution Alternative : Utilise l'interface web${NC}"
+    echo ""
+    echo "Option 1 : Interface HTML locale"
+    echo "  1. Ouvre deploy-contract.html dans ton navigateur"
+    echo "  2. Télécharge le WASM"
+    echo "  3. Suis les instructions"
+    echo ""
+    echo "Option 2 : Directement sur testnet.cspr.live"
+    echo "  1. Va sur https://testnet.cspr.live/deploy"
+    echo "  2. Connecte ton wallet ou importe ta clé"
+    echo "  3. Upload: $WASM_PATH ($(du -h $WASM_PATH | cut -f1))"
+    echo "  4. Payment: 200000000000 motes"
+    echo "  5. Session Args: (vide)"
+    echo "  6. Clique 'Sign & Deploy'"
+    echo ""
+    exit 1
+fi
+
+DEPLOY_HASH=$(echo "$DEPLOY_OUTPUT" | grep -oP '(?<=deploy_hash": ")[^"]+')
 
 if [ -z "$DEPLOY_HASH" ]; then
     echo -e "${RED}❌ Deployment failed${NC}"
+    echo "$DEPLOY_OUTPUT"
     exit 1
 fi
 
