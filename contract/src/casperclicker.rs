@@ -44,6 +44,7 @@ pub struct CasperClicker {
 #[odra::module]
 impl CasperClicker {
     /// Initialize the contract
+    #[odra(init)]
     pub fn init(&mut self) {
         // Contract is ready to receive scores
     }

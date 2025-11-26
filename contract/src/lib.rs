@@ -3,3 +3,6 @@
 extern crate alloc;
 
 pub mod casperclicker;
+
+#[cfg(test)]
+mod tests;
