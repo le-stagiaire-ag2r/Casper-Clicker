@@ -43,11 +43,12 @@ No installation, no wallet required to play! (Wallet optional for blockchain fea
 
 ### 🌐 Blockchain Features
 
-- ✅ **Smart Contract** - Rust-based on-chain score storage
+- ✅ **Smart Contract** - Modern Odra framework for Casper Network
 - ✅ **Global Leaderboard** - See all players worldwide in real-time
-- ✅ **Wallet Integration** - Casper Wallet & Casper Signer support
-- ✅ **Anti-Cheat System** - Server-side validation (max 10K/click, min play time)
+- ✅ **Wallet Integration** - Casper Wallet & Casper Signer support via CSPR.click
+- ✅ **Anti-Cheat System** - Smart contract validation (max 10K/click, min play time)
 - ✅ **Permanent Storage** - Scores immutably stored on Casper blockchain
+- ✅ **Event Emission** - Real-time score submission tracking
 - ✅ **Transparent Verification** - Anyone can verify scores on block explorer
 
 ### 🎨 Technical Excellence
