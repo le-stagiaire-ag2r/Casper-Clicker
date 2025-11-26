@@ -42,20 +42,39 @@ cargo build --release --target wasm32-unknown-unknown
 cd ..
 ```
 
-## Étape 4️⃣ : DÉPLOYER ! (2 min) 🎯
+## Étape 4️⃣ : DÉPLOYER ! (3 min) 🎯
 
+⚠️ **Important** : Les nœuds RPC publics bloquent les déploiements directs (403 Forbidden).
+Utilise l'interface web à la place :
+
+### Méthode Recommandée : Interface Web
+
+**Option A : Via l'interface HTML locale**
+1. Ouvre `deploy-contract.html` dans ton navigateur
+2. Clique sur "Télécharger casperclicker_contract.wasm"
+3. Sélectionne le fichier téléchargé
+4. Suis les instructions pour déployer sur testnet.cspr.live
+
+**Option B : Directement sur testnet.cspr.live**
+1. Va sur https://testnet.cspr.live/deploy
+2. Connecte ton wallet Casper Signer (ou importe ta clé)
+3. **Session** : Upload `contract/target/wasm32-unknown-unknown/release/casperclicker_contract.wasm` (224 KB)
+4. **Payment Amount** : `200000000000` motes (200 CSPR)
+5. **Session Arguments** : Laisse vide (pas de paramètres)
+6. Clique sur "Sign & Deploy"
+
+**Coût : 200 CSPR** (tu en as 999 ✅)
+
+### Méthode Alternative : CLI (si RPC disponible)
 ```bash
-./deploy.sh testnet ~/casper/secret_key.pem
+casper-client put-deploy \
+  --node-address http://node.testnet.casper.network:7777 \
+  --chain-name casper-test \
+  --secret-key ~/casper/secret_key.pem \
+  --payment-amount 200000000000 \
+  --session-path contract/target/wasm32-unknown-unknown/release/casperclicker_contract.wasm
 ```
-
-Le script va :
-- ✅ Vérifier le WASM (224 KB)
-- ✅ Vérifier ta clé
-- ✅ Te demander confirmation
-- ✅ Déployer sur testnet Casper
-- ✅ Afficher le deploy hash
-
-**Coût : ~200 CSPR** (tu en as 999 ✅)
+⚠️ Actuellement bloqué (403 Forbidden) sur les nœuds publics
 
 ## Étape 5️⃣ : Vérifier le déploiement
 
