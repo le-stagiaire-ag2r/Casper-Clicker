@@ -10,12 +10,12 @@
 // Contract configuration
 const CASPER_CONFIG = {
     // Testnet RPC endpoint
-    nodeAddress: 'http://65.21.235.219:7777/rpc',
+    nodeAddress: 'https://node.testnet.casper.network/rpc',
     chainName: 'casper-test',
 
-    // Contract details (will be set after deployment)
-    contractHash: '', // Set this after deploying the contract
-    contractPackageHash: '', // Set this after deploying the contract
+    // Contract details (deployed on Nov 27, 2025)
+    contractHash: 'hash-49d21d7f14b34c781d69e0bdb2713d1ded994e51a029f57ef1f593d65d374dcb',
+    contractPackageHash: 'hash-49d21d7f14b34c781d69e0bdb2713d1ded994e51a029f57ef1f593d65d374dcb',
 
     // Entry points
     entryPoints: {
