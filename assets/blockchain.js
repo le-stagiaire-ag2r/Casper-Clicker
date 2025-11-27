@@ -31,6 +31,8 @@ const BlockchainState = {
     walletAddress: null,
     publicKey: null,
     casperClient: null,
+    provider: null, // Store wallet provider
+    walletType: null, // 'casper-wallet' or 'casper-signer'
     lastSyncTime: 0
 };
 
@@ -49,6 +51,8 @@ async function connectCasperWallet() {
                 BlockchainState.connected = true;
                 BlockchainState.walletAddress = publicKey;
                 BlockchainState.publicKey = publicKey;
+                BlockchainState.provider = provider;
+                BlockchainState.walletType = 'casper-wallet';
 
                 console.log('✅ Casper Wallet connected:', publicKey);
                 return {
@@ -66,6 +70,8 @@ async function connectCasperWallet() {
                 BlockchainState.connected = true;
                 BlockchainState.walletAddress = publicKey;
                 BlockchainState.publicKey = publicKey;
+                BlockchainState.provider = window.casperlabsHelper;
+                BlockchainState.walletType = 'casper-signer';
 
                 console.log('✅ Casper Signer connected:', publicKey);
                 return {
@@ -103,41 +109,105 @@ async function submitScoreToBlockchain(playerData) {
     try {
         console.log('📤 Submitting score to blockchain...', playerData);
 
-        // Prepare deploy parameters
-        const deployParams = {
-            contractHash: CASPER_CONFIG.contractHash,
-            entryPoint: CASPER_CONFIG.entryPoints.submitScore,
-            runtimeArgs: {
-                player_name: playerData.playerName,
-                wallet_address: BlockchainState.walletAddress,
-                total_earned: Math.floor(playerData.totalEarned),
-                total_clicks: playerData.totalClicks,
-                play_time: Math.floor(playerData.playTime),
-                timestamp: Math.floor(Date.now() / 1000)
-            },
-            paymentAmount: '1000000000' // 1 CSPR
+        // Prepare transaction arguments
+        const args = {
+            player_name: playerData.playerName || 'Anonymous',
+            total_earned: Math.floor(playerData.totalEarned),
+            total_clicks: playerData.totalClicks || 0,
+            play_time: Math.floor(playerData.playTime || 0),
+            timestamp: Math.floor(Date.now() / 1000)
         };
 
-        // Send via CSPR.click
-        const result = await window.csprclick.send(JSON.stringify(deployParams));
+        console.log('📊 Transaction args:', args);
 
-        if (result.success) {
-            console.log('✅ Score submitted successfully!');
-            console.log('Deploy hash:', result.deployHash);
+        let deployHash;
 
-            return {
-                success: true,
-                deployHash: result.deployHash,
-                message: 'Score submitted to blockchain!'
+        // Use Casper Wallet API
+        if (BlockchainState.walletType === 'casper-wallet') {
+            const deploy = {
+                deploy: {
+                    chainName: CASPER_CONFIG.chainName,
+                    session: {
+                        StoredContractByHash: {
+                            hash: CASPER_CONFIG.contractHash.replace('hash-', ''),
+                            entry_point: CASPER_CONFIG.entryPoints.submitScore,
+                            args: [
+                                { name: 'player_name', type: 'String', value: args.player_name },
+                                { name: 'total_earned', type: 'U64', value: args.total_earned.toString() },
+                                { name: 'total_clicks', type: 'U64', value: args.total_clicks.toString() },
+                                { name: 'play_time', type: 'U64', value: args.play_time.toString() },
+                                { name: 'timestamp', type: 'U64', value: args.timestamp.toString() }
+                            ]
+                        }
+                    },
+                    payment: {
+                        ModuleBytes: {
+                            module_bytes: '',
+                            args: [
+                                { name: 'amount', type: 'U512', value: '5000000000' } // 5 CSPR
+                            ]
+                        }
+                    }
+                },
+                signingPublicKeyHex: BlockchainState.walletAddress,
+                targetPublicKeyHex: BlockchainState.walletAddress
             };
+
+            const result = await BlockchainState.provider.signDeploy(deploy);
+            deployHash = result.deployHash;
+
+        } else if (BlockchainState.walletType === 'casper-signer') {
+            // Use Casper Signer API
+            const deploy = {
+                deploy: {
+                    chainName: CASPER_CONFIG.chainName,
+                    session: {
+                        storedContractByHash: {
+                            hash: CASPER_CONFIG.contractHash.replace('hash-', ''),
+                            entryPoint: CASPER_CONFIG.entryPoints.submitScore,
+                            args: [
+                                ['player_name', 'String', args.player_name],
+                                ['total_earned', 'U64', args.total_earned.toString()],
+                                ['total_clicks', 'U64', args.total_clicks.toString()],
+                                ['play_time', 'U64', args.play_time.toString()],
+                                ['timestamp', 'U64', args.timestamp.toString()]
+                            ]
+                        }
+                    },
+                    payment: {
+                        moduleBytes: {
+                            moduleBytes: '',
+                            args: [
+                                ['amount', 'U512', '5000000000'] // 5 CSPR
+                            ]
+                        }
+                    }
+                },
+                signingPublicKeyHex: BlockchainState.walletAddress,
+                targetPublicKeyHex: BlockchainState.walletAddress
+            };
+
+            const signedDeploy = await BlockchainState.provider.sign(JSON.stringify(deploy));
+            deployHash = signedDeploy.deploy.hash;
         } else {
-            throw new Error(result.error || 'Deploy failed');
+            throw new Error('Unknown wallet type');
         }
+
+        console.log('✅ Score submitted successfully!');
+        console.log('Deploy hash:', deployHash);
+        console.log('🔗 View transaction: https://testnet.cspr.live/transaction/' + deployHash);
+
+        return {
+            success: true,
+            deployHash: deployHash,
+            message: 'Score submitted to blockchain!'
+        };
+
     } catch (error) {
         console.error('❌ Failed to submit score:', error);
         return {
             success: false,
-            error: error.message
+            error: error.message || 'Unknown error'
         };
     }
 }
