@@ -1,0 +1,17 @@
+default:
+    just -l
+
+build-contracts:
+    cargo odra build
+
+test:
+    cargo odra test -b casper
+
+lint:
+    cargo fmt
+
+cli *ARGS:
+    cargo run --bin casperclicker_contract_cli -- {{ARGS}}
+
+deploy:
+    cargo run --bin casperclicker_contract_cli -- deploy
