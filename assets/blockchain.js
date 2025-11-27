@@ -120,82 +120,88 @@ async function submitScoreToBlockchain(playerData) {
 
         console.log('📊 Transaction args:', args);
 
-        let deployHash;
+        // Use Casper JS SDK to build the deploy
+        const { CLPublicKey, CLValueBuilder, DeployUtil, RuntimeArgs } = window.CasperSDK;
 
-        // Use Casper Wallet API
+        // Build runtime args
+        const runtimeArgs = RuntimeArgs.fromMap({
+            player_name: CLValueBuilder.string(args.player_name),
+            total_earned: CLValueBuilder.u64(args.total_earned),
+            total_clicks: CLValueBuilder.u64(args.total_clicks),
+            play_time: CLValueBuilder.u64(args.play_time),
+            timestamp: CLValueBuilder.u64(args.timestamp)
+        });
+
+        // Parse public key
+        const publicKey = CLPublicKey.fromHex(BlockchainState.walletAddress);
+
+        // Build deploy params
+        const deployParams = new DeployUtil.DeployParams(
+            publicKey,
+            CASPER_CONFIG.chainName
+        );
+
+        // Payment: 5 CSPR
+        const payment = DeployUtil.standardPayment(5_000_000_000);
+
+        // Session: Call stored contract
+        const contractHash = CASPER_CONFIG.contractHash.replace('hash-', '');
+        // Convert hex string to Uint8Array
+        const contractHashBytes = new Uint8Array(contractHash.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+            contractHashBytes,
+            CASPER_CONFIG.entryPoints.submitScore,
+            runtimeArgs
+        );
+
+        // Make deploy
+        const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
+
+        // Sign with wallet
+        let signedDeploy;
         if (BlockchainState.walletType === 'casper-wallet') {
-            const deploy = {
-                deploy: {
-                    chainName: CASPER_CONFIG.chainName,
-                    session: {
-                        StoredContractByHash: {
-                            hash: CASPER_CONFIG.contractHash.replace('hash-', ''),
-                            entry_point: CASPER_CONFIG.entryPoints.submitScore,
-                            args: [
-                                { name: 'player_name', type: 'String', value: args.player_name },
-                                { name: 'total_earned', type: 'U64', value: args.total_earned.toString() },
-                                { name: 'total_clicks', type: 'U64', value: args.total_clicks.toString() },
-                                { name: 'play_time', type: 'U64', value: args.play_time.toString() },
-                                { name: 'timestamp', type: 'U64', value: args.timestamp.toString() }
-                            ]
-                        }
-                    },
-                    payment: {
-                        ModuleBytes: {
-                            module_bytes: '',
-                            args: [
-                                { name: 'amount', type: 'U512', value: '5000000000' } // 5 CSPR
-                            ]
-                        }
-                    }
-                },
-                signingPublicKeyHex: BlockchainState.walletAddress,
-                targetPublicKeyHex: BlockchainState.walletAddress
-            };
-
-            const result = await BlockchainState.provider.signDeploy(deploy);
-            deployHash = result.deployHash;
-
+            const deployJson = DeployUtil.deployToJson(deploy);
+            const result = await BlockchainState.provider.sign(
+                JSON.stringify(deployJson),
+                BlockchainState.walletAddress
+            );
+            signedDeploy = DeployUtil.deployFromJson(result).unwrap();
         } else if (BlockchainState.walletType === 'casper-signer') {
-            // Use Casper Signer API
-            const deploy = {
-                deploy: {
-                    chainName: CASPER_CONFIG.chainName,
-                    session: {
-                        storedContractByHash: {
-                            hash: CASPER_CONFIG.contractHash.replace('hash-', ''),
-                            entryPoint: CASPER_CONFIG.entryPoints.submitScore,
-                            args: [
-                                ['player_name', 'String', args.player_name],
-                                ['total_earned', 'U64', args.total_earned.toString()],
-                                ['total_clicks', 'U64', args.total_clicks.toString()],
-                                ['play_time', 'U64', args.play_time.toString()],
-                                ['timestamp', 'U64', args.timestamp.toString()]
-                            ]
-                        }
-                    },
-                    payment: {
-                        moduleBytes: {
-                            moduleBytes: '',
-                            args: [
-                                ['amount', 'U512', '5000000000'] // 5 CSPR
-                            ]
-                        }
-                    }
-                },
-                signingPublicKeyHex: BlockchainState.walletAddress,
-                targetPublicKeyHex: BlockchainState.walletAddress
-            };
-
-            const signedDeploy = await BlockchainState.provider.sign(JSON.stringify(deploy));
-            deployHash = signedDeploy.deploy.hash;
+            const deployJson = DeployUtil.deployToJson(deploy);
+            const signedDeployJson = await BlockchainState.provider.sign(
+                JSON.stringify(deployJson),
+                BlockchainState.walletAddress
+            );
+            signedDeploy = DeployUtil.deployFromJson(signedDeployJson).unwrap();
         } else {
             throw new Error('Unknown wallet type');
         }
 
+        // Convert hash to hex string
+        const deployHash = Array.from(signedDeploy.hash)
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join('');
+
         console.log('✅ Score submitted successfully!');
         console.log('Deploy hash:', deployHash);
         console.log('🔗 View transaction: https://testnet.cspr.live/transaction/' + deployHash);
+
+        // Send deploy to network
+        const response = await fetch(CASPER_CONFIG.nodeAddress, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'account_put_deploy',
+                params: [DeployUtil.deployToJson(signedDeploy)],
+                id: 1
+            })
+        });
+
+        const result = await response.json();
+        if (result.error) {
+            throw new Error(result.error.message || 'Deploy submission failed');
+        }
 
         return {
             success: true,
