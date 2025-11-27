@@ -26,6 +26,11 @@ name = "casperclicker_contract_cli"
 path = "bin/cli.rs"
 test = false
 
+[[bin]]
+name = "test_call"
+path = "bin/test_call.rs"
+test = false
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
