@@ -119,25 +119,42 @@
             try {
                 statusDiv.style.display = 'block';
                 statusDiv.className = 'status';
-                statusDiv.innerHTML = '🔌 Connecting to Casper Signer...';
+                statusDiv.innerHTML = '🔌 Connecting to Casper wallet...';
                 deployBtn.disabled = true;
 
-                // Check if Casper provider exists
-                if (!window.casperlabsHelper) {
-                    throw new Error('Casper Signer not found! Please install Casper Signer extension.');
+                // Check for Casper Wallet (new) or Casper Signer (old)
+                let provider;
+                let activeKey;
+
+                if (window.CasperWalletProvider) {
+                    // New Casper Wallet
+                    statusDiv.innerHTML = '🔌 Detected Casper Wallet...';
+                    provider = window.CasperWalletProvider();
+
+                    const connected = await provider.requestConnection();
+                    if (!connected) {
+                        throw new Error('Connection rejected. Please approve in Casper Wallet.');
+                    }
+
+                    activeKey = await provider.getActivePublicKey();
+
+                } else if (window.casperlabsHelper) {
+                    // Old Casper Signer
+                    statusDiv.innerHTML = '🔌 Detected Casper Signer...';
+                    provider = window.casperlabsHelper;
+
+                    await provider.requestConnection();
+                    const isConnected = await provider.isConnected();
+                    if (!isConnected) {
+                        throw new Error('Please connect your Casper Signer');
+                    }
+
+                    activeKey = await provider.getActivePublicKey();
+
+                } else {
+                    throw new Error('No Casper wallet found! Please install Casper Wallet or Casper Signer extension.');
                 }
 
-                // Connect to wallet
-                await window.casperlabsHelper.requestConnection();
-                statusDiv.innerHTML = '✅ Connected!<br>📦 Preparing deployment...';
-
-                // Get active key
-                const isConnected = await window.casperlabsHelper.isConnected();
-                if (!isConnected) {
-                    throw new Error('Please connect your Casper wallet');
-                }
-
-                const activeKey = await window.casperlabsHelper.getActivePublicKey();
                 statusDiv.innerHTML = `✅ Connected: ${activeKey.slice(0, 20)}...<br>📝 Creating deploy...`;
 
                 // Read WASM file
@@ -172,7 +189,12 @@
                 statusDiv.innerHTML = '📤 Sending to network...';
 
                 // Send deploy
-                const deployHash = await window.casperlabsHelper.deploy(deployParams);
+                let deployHash;
+                if (window.CasperWalletProvider) {
+                    deployHash = await provider.deploy(deployParams);
+                } else {
+                    deployHash = await provider.deploy(deployParams);
+                }
 
                 // Show result
                 statusDiv.style.display = 'none';
@@ -184,7 +206,8 @@
                 statusDiv.className = 'status error';
                 statusDiv.innerHTML = `❌ Error: ${error.message}<br><br>
                     <strong>Solutions:</strong><br>
-                    • Install Casper Signer: <a href="https://www.casperlabs.io/signer" target="_blank">Download here</a><br>
+                    • Install Casper Wallet: <a href="https://www.casperwallet.io" target="_blank">Download here</a><br>
+                    • OR Casper Signer: <a href="https://www.casperlabs.io/signer" target="_blank">Download here</a><br>
                     • Make sure you're on testnet, not mainnet<br>
                     • Refresh the page and try again`;
                 deployBtn.disabled = false;
