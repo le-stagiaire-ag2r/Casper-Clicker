@@ -1,2 +1,7 @@
-[[contracts]]
-fqn = "casperclicker::CasperClicker"
+[livenet]
+
+[[livenet.networks]]
+name = "testnet"
+node_address = "https://rpc.testnet.casperlabs.io"
+chain_name = "casper-test"
+secret_key_path = "secret_key.pem"
