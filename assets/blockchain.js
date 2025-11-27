@@ -120,75 +120,79 @@ async function submitScoreToBlockchain(playerData) {
 
         console.log('📊 Transaction args:', args);
 
-        // Use Casper JS SDK to build the transaction (NEW API)
-        const { CLValue, Args, PublicKey, Hash, ContractCallBuilder } = window.CasperSDK;
-
-        // Build runtime args with new API
-        const runtimeArgs = Args.fromMap({
-            player_name: CLValue.newCLString(args.player_name),
-            total_earned: CLValue.newCLU64(args.total_earned),
-            total_clicks: CLValue.newCLU64(args.total_clicks),
-            play_time: CLValue.newCLU64(args.play_time),
-            timestamp: CLValue.newCLU64(args.timestamp)
-        });
-
-        // Parse public key
-        const publicKey = PublicKey.fromHex(BlockchainState.walletAddress);
-
-        // Build transaction with ContractCallBuilder (NEW API)
+        // Build deploy JSON directly (no SDK needed)
         const contractHash = CASPER_CONFIG.contractHash.replace('hash-', '');
-        const transaction = new ContractCallBuilder()
-            .from(publicKey)
-            .contractHash(Hash.fromHex(contractHash))
-            .entryPoint(CASPER_CONFIG.entryPoints.submitScore)
-            .runtimeArgs(runtimeArgs)
-            .payment(5_000_000_000) // 5 CSPR
-            .chainName(CASPER_CONFIG.chainName)
-            .build();
 
-        console.log('📦 Transaction built:', transaction);
-
-        // Convert to format for wallet signing
-        const transactionJson = transaction.toJSON();
-        const transactionWrapper = {
-            transaction: {
-                Version1: transactionJson
+        const deployJson = {
+            deploy: {
+                hash: '', // Will be filled by wallet
+                header: {
+                    account: BlockchainState.walletAddress,
+                    timestamp: new Date().toISOString(),
+                    ttl: '30m',
+                    gas_price: 1,
+                    body_hash: '',
+                    dependencies: [],
+                    chain_name: CASPER_CONFIG.chainName
+                },
+                payment: {
+                    ModuleBytes: {
+                        module_bytes: '',
+                        args: [
+                            ['amount', { cl_type: 'U512', bytes: '0400f90295', parsed: '5000000000' }]
+                        ]
+                    }
+                },
+                session: {
+                    StoredContractByHash: {
+                        hash: contractHash,
+                        entry_point: CASPER_CONFIG.entryPoints.submitScore,
+                        args: [
+                            ['player_name', { cl_type: 'String', bytes: '', parsed: args.player_name }],
+                            ['total_earned', { cl_type: 'U64', bytes: '', parsed: args.total_earned.toString() }],
+                            ['total_clicks', { cl_type: 'U64', bytes: '', parsed: args.total_clicks.toString() }],
+                            ['play_time', { cl_type: 'U64', bytes: '', parsed: args.play_time.toString() }],
+                            ['timestamp', { cl_type: 'U64', bytes: '', parsed: args.timestamp.toString() }]
+                        ]
+                    }
+                },
+                approvals: []
             }
         };
 
-        console.log('📝 Signing and sending transaction...');
+        console.log('📦 Deploy JSON built:', deployJson);
+        console.log('📝 Signing with wallet...');
 
         // Sign and send with wallet
         let deployHash;
 
         if (BlockchainState.walletType === 'casper-wallet') {
-            // Casper Wallet API - signAndSend method
-            const result = await BlockchainState.provider.signTransaction(
-                transactionJson,
+            // Casper Wallet - direct signDeploy
+            const result = await BlockchainState.provider.signDeploy(
+                deployJson,
                 BlockchainState.walletAddress
             );
 
-            deployHash = result.transaction?.hash || result.hash;
+            deployHash = result.deploy?.hash || result.hash;
             console.log('✅ Transaction sent by Casper Wallet:', result);
 
         } else if (BlockchainState.walletType === 'casper-signer') {
-            // Casper Signer API - different method
-            const deployJsonString = JSON.stringify(transactionWrapper);
+            // Casper Signer
             const signedDeploy = await BlockchainState.provider.sign(
-                deployJsonString,
+                JSON.stringify(deployJson),
                 BlockchainState.walletAddress
             );
 
             const parsed = JSON.parse(signedDeploy);
-            deployHash = parsed.transaction?.Version1?.hash || parsed.hash;
+            deployHash = parsed.deploy?.hash || parsed.hash;
 
-            // Send to network manually for Casper Signer
+            // Send to network manually
             const response = await fetch(CASPER_CONFIG.nodeAddress, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     jsonrpc: '2.0',
-                    method: 'account_put_transaction',
+                    method: 'account_put_deploy',
                     params: [parsed],
                     id: 1
                 })
@@ -196,7 +200,7 @@ async function submitScoreToBlockchain(playerData) {
 
             const result = await response.json();
             if (result.error) {
-                throw new Error(result.error.message || 'Transaction submission failed');
+                throw new Error(result.error.message || 'Deploy submission failed');
             }
 
             console.log('✅ Transaction sent by Casper Signer:', result);
@@ -205,11 +209,11 @@ async function submitScoreToBlockchain(playerData) {
         }
 
         if (!deployHash) {
-            throw new Error('Could not extract deploy hash from transaction');
+            throw new Error('Could not extract deploy hash');
         }
 
         console.log('Deploy hash:', deployHash);
-        console.log('🔗 View transaction: https://testnet.cspr.live/transaction/' + deployHash);
+        console.log('🔗 View transaction: https://testnet.cspr.live/deploy/' + deployHash);
 
         return {
             success: true,
