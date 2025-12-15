@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ClickUI } from '@make-software/csprclick-ui'
+import { ThemeProvider } from 'styled-components'
+import {
+  ClickProvider,
+  ClickUI,
+  CsprClickThemes,
+  ThemeModeType
+} from '@make-software/csprclick-ui'
+import { CONTENT_MODE } from '@make-software/csprclick-core-types'
+import type { CsprClickInitOptions } from '@make-software/csprclick-core-types'
 import GhostBackground from './components/GhostBackground'
 import Header from './components/Header'
 import StatsPanel from './components/StatsPanel'
@@ -10,6 +18,17 @@ import CustomCursor from './components/CustomCursor'
 import { ToastProvider, useToast } from './components/Toast'
 import { ConfettiProvider, useConfetti } from './components/Confetti'
 import { useGameStore, ACHIEVEMENTS } from './stores/gameStore'
+
+// Get runtime config
+const config = window.config
+
+// CSPR.click initialization options
+const clickOptions: CsprClickInitOptions = {
+  appName: config.cspr_click_app_name,
+  appId: config.cspr_click_app_id,
+  contentMode: CONTENT_MODE.IFRAME,
+  providers: config.cspr_click_providers,
+}
 
 function GameContent() {
   const { addPassiveIncome, updatePlayTime, checkAchievements, startTime } = useGameStore()
@@ -27,19 +46,14 @@ function GameContent() {
       const deltaTime = (now - lastTickRef.current) / 1000
       lastTickRef.current = now
 
-      // Add passive income
       addPassiveIncome(deltaTime)
-
-      // Update play time
       updatePlayTime((now - startTime) / 1000)
 
-      // Check achievements
       const newAchievements = checkAchievements()
       if (newAchievements.length > 0) {
         achievementQueueRef.current.push(...newAchievements)
       }
 
-      // Show achievement toast
       if (achievementQueueRef.current.length > 0 && !currentAchievement) {
         const id = achievementQueueRef.current.shift()
         const achievement = ACHIEVEMENTS.find(a => a.id === id)
@@ -47,12 +61,10 @@ function GameContent() {
           setCurrentAchievement(achievement)
           showAchievementToast(achievement.name, achievement.description)
 
-          // Trigger confetti for special achievements
           if (['millionaire', 'billionaire', 'master'].includes(achievement.id)) {
             triggerConfetti()
           }
 
-          // Clear after delay
           setTimeout(() => setCurrentAchievement(null), 500)
         }
       }
@@ -66,33 +78,26 @@ function GameContent() {
       <GhostBackground />
       <CustomCursor />
 
-      {/* CSPR.click Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <ClickUI />
-      </div>
+      <ClickUI topBarSettings={{}} themeMode={ThemeModeType.dark} />
 
       <div className="min-h-screen p-4 md:p-6 pt-16">
         <div className="max-w-7xl mx-auto">
           <Header />
 
           <main className="grid grid-cols-1 lg:grid-cols-[320px_1fr_380px] gap-6">
-            {/* Left Panel - Stats */}
             <aside className="order-2 lg:order-1">
               <StatsPanel />
             </aside>
 
-            {/* Center - Click Area */}
             <section className="order-1 lg:order-2 glass rounded-2xl p-8 flex flex-col items-center justify-center min-h-[500px]">
               <ClickButton />
             </section>
 
-            {/* Right Panel - Upgrades */}
             <aside className="order-3">
               <UpgradesPanel />
             </aside>
           </main>
 
-          {/* Footer */}
           <motion.footer
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -130,12 +135,21 @@ function GameContent() {
 }
 
 function App() {
+  const csprClickTheme = {
+    ...CsprClickThemes.dark,
+    mode: 'dark',
+  }
+
   return (
-    <ToastProvider>
-      <ConfettiProvider>
-        <GameContent />
-      </ConfettiProvider>
-    </ToastProvider>
+    <ThemeProvider theme={csprClickTheme}>
+      <ClickProvider options={clickOptions}>
+        <ToastProvider>
+          <ConfettiProvider>
+            <GameContent />
+          </ConfettiProvider>
+        </ToastProvider>
+      </ClickProvider>
+    </ThemeProvider>
   )
 }
 
