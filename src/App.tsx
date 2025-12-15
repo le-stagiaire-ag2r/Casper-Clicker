@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { ClickUI } from '@make-software/csprclick-ui'
 import GhostBackground from './components/GhostBackground'
 import Header from './components/Header'
 import StatsPanel from './components/StatsPanel'
@@ -65,7 +66,12 @@ function GameContent() {
       <GhostBackground />
       <CustomCursor />
 
-      <div className="min-h-screen p-4 md:p-6">
+      {/* CSPR.click Top Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <ClickUI />
+      </div>
+
+      <div className="min-h-screen p-4 md:p-6 pt-16">
         <div className="max-w-7xl mx-auto">
           <Header />
 
