@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useGameStore } from '../stores/gameStore'
 
 export default function Header() {
-  const { playerName, setPlayerName, reset } = useGameStore()
+  const { playerName, setPlayerName, walletConnected, walletAddress, setWallet, reset } = useGameStore()
 
   useEffect(() => {
     if (!playerName) {
@@ -15,6 +15,24 @@ export default function Header() {
       }
     }
   }, [playerName, setPlayerName])
+
+  const connectWallet = async () => {
+    if (typeof window !== 'undefined' && (window as unknown as { CasperWalletProvider?: () => { requestConnection: () => Promise<boolean>; getActivePublicKey: () => Promise<string> } }).CasperWalletProvider) {
+      try {
+        const provider = (window as unknown as { CasperWalletProvider: () => { requestConnection: () => Promise<boolean>; getActivePublicKey: () => Promise<string> } }).CasperWalletProvider()
+        const connected = await provider.requestConnection()
+        if (connected) {
+          const publicKey = await provider.getActivePublicKey()
+          setWallet(true, publicKey)
+        }
+      } catch (error) {
+        console.error('Wallet connection error:', error)
+        alert('Failed to connect wallet. Make sure Casper Wallet is installed.')
+      }
+    } else {
+      window.open('https://www.casperwallet.io/', '_blank')
+    }
+  }
 
   const handleReset = () => {
     if (confirm('Are you sure you want to reset ALL progress? This cannot be undone!')) {
@@ -62,8 +80,28 @@ export default function Header() {
           )}
         </div>
 
-        {/* Actions */}
+        {/* Wallet & Actions */}
         <div className="flex items-center gap-3">
+          {walletConnected ? (
+            <div className="px-4 py-2 rounded-lg border border-emerald-500 bg-emerald-500/10 text-emerald-400 font-mono text-sm flex items-center gap-2">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              {walletAddress?.slice(0, 8)}...{walletAddress?.slice(-6)}
+            </div>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={connectWallet}
+              className="px-6 py-2.5 rounded-xl font-semibold text-white transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                boxShadow: '0 0 30px rgba(139, 92, 246, 0.4)',
+              }}
+            >
+              Connect Wallet
+            </motion.button>
+          )}
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
