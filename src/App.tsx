@@ -8,7 +8,7 @@ import {
   ThemeModeType
 } from '@make-software/csprclick-ui'
 import { CONTENT_MODE } from '@make-software/csprclick-core-types'
-import type { CsprClickInitOptions } from '@make-software/csprclick-core-types'
+import type { CsprClickInitOptions } from '@make-software/csprclick-core-client'
 import GhostBackground from './components/GhostBackground'
 import Header from './components/Header'
 import StatsPanel from './components/StatsPanel'
