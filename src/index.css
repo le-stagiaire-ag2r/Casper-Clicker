@@ -102,3 +102,37 @@ body {
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+/* CSPR.click UI fixes */
+#cspr-click-topbar,
+[class*="TopBar"],
+[class*="click-ui"],
+#cspr-click-ui {
+  z-index: 999999 !important;
+  position: relative !important;
+}
+
+[class*="Popover"],
+[class*="popover"],
+[data-radix-popper-content-wrapper],
+[class*="AccountMenu"] > div[style*="position"],
+[class*="click-ui"] [role="menu"],
+[class*="click-ui"] [role="listbox"] {
+  z-index: 9999999 !important;
+}
+
+[class*="AccountMenu"],
+[class*="Menu"],
+[class*="MenuItem"],
+[class*="click-ui"] ul,
+[class*="click-ui"] li,
+[class*="click-ui"] button,
+[class*="click-ui"] a {
+  pointer-events: auto !important;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
