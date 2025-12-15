@@ -10,12 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@make-software/csprclick-core-client": "^1.11.0",
+    "@make-software/csprclick-ui": "^1.12.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "@tailwindcss/vite": "^4.1.18",
     "framer-motion": "^12.23.26",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tailwindcss": "^4.1.18",
     "three": "^0.182.0",
     "zustand": "^5.0.9"
@@ -23,8 +25,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@types/three": "^0.182.0",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
