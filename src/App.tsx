@@ -1,50 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import GhostBackground from './components/GhostBackground'
 import Header from './components/Header'
 import StatsPanel from './components/StatsPanel'
 import ClickButton from './components/ClickButton'
 import UpgradesPanel from './components/UpgradesPanel'
+import CustomCursor from './components/CustomCursor'
+import { ToastProvider, useToast } from './components/Toast'
+import { ConfettiProvider, useConfetti } from './components/Confetti'
 import { useGameStore, ACHIEVEMENTS } from './stores/gameStore'
 
-function AchievementToast({ achievement, onClose }: { achievement: typeof ACHIEVEMENTS[0], onClose: () => void }) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000)
-    return () => clearTimeout(timer)
-  }, [onClose])
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 400 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 400 }}
-      className="glass rounded-xl p-4 border-2 border-emerald-500 shadow-[0_0_40px_rgba(34,197,94,0.4)] min-w-[320px]"
-    >
-      <div className="flex items-center gap-4">
-        <motion.span
-          initial={{ scale: 0 }}
-          animate={{ scale: [0, 1.3, 1] }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl"
-        >
-          {achievement.icon}
-        </motion.span>
-        <div>
-          <p className="text-emerald-400 font-bold text-sm uppercase tracking-wider">
-            Achievement Unlocked!
-          </p>
-          <p className="text-white font-semibold">{achievement.name}</p>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
-
-function App() {
+function GameContent() {
   const { addPassiveIncome, updatePlayTime, checkAchievements, startTime } = useGameStore()
   const lastTickRef = useRef(Date.now())
   const achievementQueueRef = useRef<string[]>([])
-  const [showAchievement, setShowAchievement] = useState<typeof ACHIEVEMENTS[0] | null>(null)
+  const [currentAchievement, setCurrentAchievement] = useState<typeof ACHIEVEMENTS[0] | null>(null)
+
+  const { achievement: showAchievementToast } = useToast()
+  const { triggerConfetti } = useConfetti()
 
   // Game loop
   useEffect(() => {
@@ -66,21 +39,31 @@ function App() {
       }
 
       // Show achievement toast
-      if (achievementQueueRef.current.length > 0 && !showAchievement) {
+      if (achievementQueueRef.current.length > 0 && !currentAchievement) {
         const id = achievementQueueRef.current.shift()
         const achievement = ACHIEVEMENTS.find(a => a.id === id)
         if (achievement) {
-          setShowAchievement(achievement)
+          setCurrentAchievement(achievement)
+          showAchievementToast(achievement.name, achievement.description)
+
+          // Trigger confetti for special achievements
+          if (['millionaire', 'billionaire', 'master'].includes(achievement.id)) {
+            triggerConfetti()
+          }
+
+          // Clear after delay
+          setTimeout(() => setCurrentAchievement(null), 500)
         }
       }
     }, 100)
 
     return () => clearInterval(gameLoop)
-  }, [addPassiveIncome, updatePlayTime, checkAchievements, startTime, showAchievement])
+  }, [addPassiveIncome, updatePlayTime, checkAchievements, startTime, currentAchievement, showAchievementToast, triggerConfetti])
 
   return (
     <>
       <GhostBackground />
+      <CustomCursor />
 
       <div className="min-h-screen p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
@@ -132,23 +115,21 @@ function App() {
                 StakeVue
               </a>
             </div>
-            <p className="text-slate-500 text-xs mt-2">v2.0.0 - Phantom Realm Edition (React)</p>
+            <p className="text-slate-500 text-xs mt-2">v2.1.0 - Phantom Realm Edition</p>
           </motion.footer>
         </div>
       </div>
-
-      {/* Achievement Toast */}
-      <div className="fixed top-6 right-6 z-50">
-        <AnimatePresence>
-          {showAchievement && (
-            <AchievementToast
-              achievement={showAchievement}
-              onClose={() => setShowAchievement(null)}
-            />
-          )}
-        </AnimatePresence>
-      </div>
     </>
+  )
+}
+
+function App() {
+  return (
+    <ToastProvider>
+      <ConfettiProvider>
+        <GameContent />
+      </ConfettiProvider>
+    </ToastProvider>
   )
 }
 

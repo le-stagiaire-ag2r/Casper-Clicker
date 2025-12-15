@@ -17,10 +17,9 @@ export default function Header() {
   }, [playerName, setPlayerName])
 
   const connectWallet = async () => {
-    // Check for Casper Wallet
-    if (typeof window !== 'undefined' && (window as any).CasperWalletProvider) {
+    if (typeof window !== 'undefined' && (window as unknown as { CasperWalletProvider?: () => { requestConnection: () => Promise<boolean>; getActivePublicKey: () => Promise<string> } }).CasperWalletProvider) {
       try {
-        const provider = (window as any).CasperWalletProvider()
+        const provider = (window as unknown as { CasperWalletProvider: () => { requestConnection: () => Promise<boolean>; getActivePublicKey: () => Promise<string> } }).CasperWalletProvider()
         const connected = await provider.requestConnection()
         if (connected) {
           const publicKey = await provider.getActivePublicKey()
@@ -31,7 +30,7 @@ export default function Header() {
         alert('Failed to connect wallet. Make sure Casper Wallet is installed.')
       }
     } else {
-      alert('Please install Casper Wallet extension to connect.')
+      window.open('https://www.casperwallet.io/', '_blank')
     }
   }
 
@@ -68,7 +67,7 @@ export default function Header() {
           <p className="text-cyan-400 text-sm font-medium">Phantom Realm - Idle Staking Game</p>
           {playerName && (
             <p
-              className="text-emerald-400 text-sm mt-1 cursor-pointer hover:text-emerald-300"
+              className="text-emerald-400 text-sm mt-1 cursor-pointer hover:text-emerald-300 transition-colors"
               onClick={() => {
                 const newName = prompt('Enter new name:', playerName)
                 if (newName && newName.trim()) {
@@ -84,7 +83,8 @@ export default function Header() {
         {/* Wallet & Actions */}
         <div className="flex items-center gap-3">
           {walletConnected ? (
-            <div className="px-4 py-2 rounded-lg border border-emerald-500 bg-emerald-500/10 text-emerald-400 font-mono text-sm">
+            <div className="px-4 py-2 rounded-lg border border-emerald-500 bg-emerald-500/10 text-emerald-400 font-mono text-sm flex items-center gap-2">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               {walletAddress?.slice(0, 8)}...{walletAddress?.slice(-6)}
             </div>
           ) : (
