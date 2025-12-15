@@ -466,6 +466,21 @@ function calculatePerSecond() {
 function handleClick(event) {
     const earnedAmount = GameState.clickPower;
 
+    // Check if clicked on a Golden Ghost first
+    if (typeof GhostBackground !== 'undefined' && GhostBackground.checkGoldenGhostClick) {
+        const hitGolden = GhostBackground.checkGoldenGhostClick(event.clientX, event.clientY);
+        if (hitGolden) {
+            // Golden Ghost bonus!
+            const bonus = Math.floor(GameState.clickPower * 100 + GameState.perSecond * 30);
+            GameState.balance += bonus;
+            GameState.totalEarned += bonus;
+            showGoldenGhostBonus(bonus);
+            updateUI();
+            saveGame();
+            return;
+        }
+    }
+
     // Update state
     GameState.balance += earnedAmount;
     GameState.totalEarned += earnedAmount;
@@ -482,6 +497,11 @@ function handleClick(event) {
     // Create click effect
     createClickEffect(event, earnedAmount);
 
+    // Create 3D particle burst effect
+    if (typeof GhostBackground !== 'undefined' && GhostBackground.createClickBurst) {
+        GhostBackground.createClickBurst(event.clientX, event.clientY, earnedAmount);
+    }
+
     // Update UI
     updateUI();
 
@@ -490,6 +510,27 @@ function handleClick(event) {
 
     // Save game
     saveGame();
+}
+
+/**
+ * Show Golden Ghost bonus notification
+ */
+function showGoldenGhostBonus(bonus) {
+    const notification = document.createElement('div');
+    notification.className = 'golden-ghost-notification';
+    notification.innerHTML = `
+        <div class="golden-ghost-icon">👻✨</div>
+        <div class="golden-ghost-text">GOLDEN GHOST!</div>
+        <div class="golden-ghost-bonus">+${formatNumber(bonus)} stCSPR</div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Remove after animation
+    setTimeout(() => {
+        notification.style.animation = 'goldenPopup 0.3s ease-in reverse forwards';
+        setTimeout(() => notification.remove(), 300);
+    }, 2000);
 }
 
 /**
@@ -542,9 +583,48 @@ function gameTick() {
         checkAchievements();
     }
 
+    // Spawn Golden Ghost randomly (approx once per 45-90 seconds)
+    if (Math.random() < 0.0015) { // ~0.15% chance per tick = ~1.5% per second
+        spawnGoldenGhost();
+    }
+
     // Auto-save every 30 seconds
     if (Math.floor(GameState.playTime) % 30 === 0 && Math.floor(GameState.playTime) > 0) {
         saveGame();
+    }
+}
+
+/**
+ * Spawn a Golden Ghost bonus
+ */
+function spawnGoldenGhost() {
+    if (typeof GhostBackground !== 'undefined' && GhostBackground.spawnGoldenGhost) {
+        GhostBackground.spawnGoldenGhost();
+        console.log('🌟 Golden Ghost spawned! Click it for bonus!');
+    }
+}
+
+/**
+ * Handle global clicks for Golden Ghost detection
+ */
+function handleGlobalClick(event) {
+    // Skip if clicking on interactive elements
+    if (event.target.closest('button, a, input, .upgrade-item')) {
+        return;
+    }
+
+    // Check for Golden Ghost hit
+    if (typeof GhostBackground !== 'undefined' && GhostBackground.checkGoldenGhostClick) {
+        const hitGolden = GhostBackground.checkGoldenGhostClick(event.clientX, event.clientY);
+        if (hitGolden) {
+            // Golden Ghost bonus!
+            const bonus = Math.floor(GameState.clickPower * 100 + GameState.perSecond * 30 + 50);
+            GameState.balance += bonus;
+            GameState.totalEarned += bonus;
+            showGoldenGhostBonus(bonus);
+            updateUI();
+            saveGame();
+        }
     }
 }
 
@@ -1018,7 +1098,8 @@ window.resetGame = resetGame;
  * Initialize the game
  */
 function initGame() {
-    console.log('🎮 CasperClicker - Initializing...');
+    console.log('👻 CasperClicker - Phantom Realm Edition');
+    console.log('🎮 Initializing...');
 
     // Load saved game
     loadGame();
@@ -1030,6 +1111,9 @@ function initGame() {
 
     // Setup event listeners
     document.getElementById('mainButton').addEventListener('click', handleClick);
+
+    // Global click listener for Golden Ghosts
+    document.addEventListener('click', handleGlobalClick);
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
 
     const submitBtn = document.getElementById('submitScoreBtn');

@@ -3,27 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CasperClicker - Idle Staking Game</title>
-    <meta name="description" content="Addictive idle clicker game on Casper Network. Click to stake CSPR and earn stCSPR tokens!">
+    <title>CasperClicker - Phantom Realm</title>
+    <meta name="description" content="Addictive idle clicker game on Casper Network. Click to stake CSPR and earn stCSPR tokens in the Phantom Realm!">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="assets/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👻</text></svg>">
 </head>
 <body>
+    <!-- Ghost Background (Three.js) -->
+    <script src="assets/ghostBackground.js"></script>
+
     <div class="container">
         <!-- Header -->
         <header>
             <div class="logo">
-                <h1>🎮 CASPER CLICKER</h1>
-                <p class="tagline">Idle Staking Game on Casper Network</p>
+                <h1>CASPER CLICKER</h1>
+                <p class="tagline">Phantom Realm - Idle Staking Game</p>
             </div>
             <div class="wallet-section">
                 <button id="connectWallet" class="btn-wallet">
-                    🔗 Connect Wallet
+                    Connect Wallet
                 </button>
                 <div id="walletInfo" class="wallet-info hidden">
                     <span id="walletAddress"></span>
                 </div>
                 <button id="resetGameBtn" class="btn-reset" onclick="resetGame()">
-                    🔄 Reset Game
+                    Reset
                 </button>
             </div>
         </header>
@@ -33,7 +49,7 @@
             <!-- Left Panel: Stats -->
             <aside class="stats-panel">
                 <div class="stat-card">
-                    <h3>💰 Your Balance</h3>
+                    <h3>Your Balance</h3>
                     <div class="balance-display">
                         <span class="balance-amount" id="balance">0</span>
                         <span class="currency">stCSPR</span>
@@ -41,7 +57,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <h3>⚡ Per Second</h3>
+                    <h3>Per Second</h3>
                     <div class="rate-display">
                         <span class="rate-amount" id="perSecond">0</span>
                         <span class="currency">stCSPR/s</span>
@@ -49,7 +65,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <h3>👆 Per Click</h3>
+                    <h3>Per Click</h3>
                     <div class="click-display">
                         <span class="click-amount" id="perClick">1</span>
                         <span class="currency">stCSPR</span>
@@ -57,24 +73,24 @@
                 </div>
 
                 <div class="stat-card">
-                    <h3>📊 Total Stats</h3>
+                    <h3>Total Stats</h3>
                     <div class="stats-list">
                         <p>Total Clicks: <span id="totalClicks">0</span></p>
                         <p>Total Earned: <span id="totalEarned">0</span></p>
                         <p>Play Time: <span id="playTime">0s</span></p>
                     </div>
                     <button id="submitScoreBtn" class="btn-submit-score hidden">
-                        📤 Submit to Blockchain
+                        Submit to Blockchain
                     </button>
                 </div>
 
                 <div class="stat-card">
-                    <h3>🏆 Global Leaderboard</h3>
+                    <h3>Global Leaderboard</h3>
                     <div id="leaderboard" class="leaderboard">
                         <p class="loading">Loading...</p>
                     </div>
                     <button id="refreshLeaderboard" class="btn-refresh">
-                        🔄 Refresh
+                        Refresh
                     </button>
                 </div>
             </aside>
@@ -84,7 +100,7 @@
                 <div class="click-container">
                     <button id="mainButton" class="main-button">
                         <div class="button-content">
-                            <div class="coin-icon">🪙</div>
+                            <div class="coin-icon">👻</div>
                             <div class="button-text">CLICK TO STAKE!</div>
                         </div>
                     </button>
@@ -106,7 +122,7 @@
             <!-- Right Panel: Upgrades -->
             <aside class="upgrades-panel">
                 <div class="panel-header">
-                    <h3>🛒 UPGRADES</h3>
+                    <h3>UPGRADES</h3>
                 </div>
 
                 <div class="upgrades-container" id="upgradesContainer">
@@ -114,7 +130,7 @@
                 </div>
 
                 <div class="panel-header">
-                    <h3>🎖️ ACHIEVEMENTS</h3>
+                    <h3>ACHIEVEMENTS</h3>
                 </div>
 
                 <div class="achievements-container" id="achievementsContainer">
@@ -134,13 +150,12 @@
                     <span>|</span>
                     <a href="https://github.com/le-stagiaire-ag2r/CasperSecure" target="_blank">CasperSecure</a>
                 </div>
-                <p class="version">v1.0.0 - Powered by Casper Network</p>
+                <p class="version">v2.0.0 - Phantom Realm Edition</p>
             </div>
         </footer>
     </div>
 
-    <!-- Achievement notifications will be added dynamically here -->
-
+    <!-- Scripts -->
     <script src="assets/blockchain.js"></script>
     <script src="assets/game.js"></script>
 </body>
