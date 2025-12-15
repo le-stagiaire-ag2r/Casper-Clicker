@@ -1,14 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ThemeProvider } from 'styled-components'
-import {
-  ClickProvider,
-  ClickUI,
-  CsprClickThemes,
-  ThemeModeType
-} from '@make-software/csprclick-ui'
-import { CONTENT_MODE } from '@make-software/csprclick-core-types'
-import type { CsprClickInitOptions } from '@make-software/csprclick-core-client'
 import GhostBackground from './components/GhostBackground'
 import Header from './components/Header'
 import StatsPanel from './components/StatsPanel'
@@ -18,17 +9,6 @@ import CustomCursor from './components/CustomCursor'
 import { ToastProvider, useToast } from './components/Toast'
 import { ConfettiProvider, useConfetti } from './components/Confetti'
 import { useGameStore, ACHIEVEMENTS } from './stores/gameStore'
-
-// Get runtime config
-const config = window.config
-
-// CSPR.click initialization options
-const clickOptions: CsprClickInitOptions = {
-  appName: config.cspr_click_app_name,
-  appId: config.cspr_click_app_id,
-  contentMode: CONTENT_MODE.IFRAME,
-  providers: config.cspr_click_providers,
-}
 
 function GameContent() {
   const { addPassiveIncome, updatePlayTime, checkAchievements, startTime } = useGameStore()
@@ -78,9 +58,7 @@ function GameContent() {
       <GhostBackground />
       <CustomCursor />
 
-      <ClickUI topBarSettings={{}} themeMode={ThemeModeType.dark} />
-
-      <div className="min-h-screen p-4 md:p-6 pt-16">
+      <div className="min-h-screen p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           <Header />
 
@@ -135,21 +113,12 @@ function GameContent() {
 }
 
 function App() {
-  const csprClickTheme = {
-    ...CsprClickThemes.dark,
-    mode: 'dark',
-  }
-
   return (
-    <ThemeProvider theme={csprClickTheme}>
-      <ClickProvider options={clickOptions}>
-        <ToastProvider>
-          <ConfettiProvider>
-            <GameContent />
-          </ConfettiProvider>
-        </ToastProvider>
-      </ClickProvider>
-    </ThemeProvider>
+    <ToastProvider>
+      <ConfettiProvider>
+        <GameContent />
+      </ConfettiProvider>
+    </ToastProvider>
   )
 }
 
